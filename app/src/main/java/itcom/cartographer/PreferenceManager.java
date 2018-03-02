@@ -3,23 +3,26 @@ package itcom.cartographer;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+/**
+ * Handles preferences of the app
+ */
 public class PreferenceManager {
-    SharedPreferences pref;
+    SharedPreferences preferences;
     SharedPreferences.Editor editor;
     Context _context;
 
-    // shared pref mode
+    // shared preferences mode
     int PRIVATE_MODE = 0;
 
     // Shared preferences file name
-    private static final String PREF_NAME = "androidhive-welcome";
+    private static final String PREF_NAME = "cartographer";
 
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
 
     public PreferenceManager(Context context) {
         this._context = context;
-        pref = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
-        editor = pref.edit();
+        preferences = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
+        editor = preferences.edit();
     }
 
     public void setFirstTimeLaunch(boolean isFirstTime) {
@@ -28,6 +31,6 @@ public class PreferenceManager {
     }
 
     public boolean isFirstTimeLaunch() {
-        return pref.getBoolean(IS_FIRST_TIME_LAUNCH, true);
+        return true; //preferences.getBoolean(IS_FIRST_TIME_LAUNCH, true);
     }
 }

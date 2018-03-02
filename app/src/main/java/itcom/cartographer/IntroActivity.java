@@ -18,13 +18,15 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+// From this tutorial: https://www.androidhive.info/2016/05/android-build-intro-slider-app/
+
 public class IntroActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private MyViewPagerAdapter myViewPagerAdapter;
     private LinearLayout dotsLayout;
     private TextView[] dots;
     private int[] layouts;
-    private Button btnSkip, btnNext;
+    private Button btnBack, btnNext;
     private PreferenceManager prefManager;
 
     @Override
@@ -45,16 +47,21 @@ public class IntroActivity extends AppCompatActivity {
 
         setContentView(R.layout.intro_activity);
 
-        viewPager = (ViewPager) findViewById(R.id.view_pager);
-        dotsLayout = (LinearLayout) findViewById(R.id.layoutDots);
-        btnSkip = (Button) findViewById(R.id.btn_skip);
-        btnNext = (Button) findViewById(R.id.btn_next);
+        viewPager = findViewById(R.id.view_pager);
+        dotsLayout = findViewById(R.id.layoutDots);
+        btnBack = findViewById(R.id.btn_back);
+        btnNext = findViewById(R.id.btn_next);
+
+        // Hide back button on first page
+        btnBack.setVisibility(View.GONE);
 
 
         // layouts of all welcome sliders
         // add few more layouts if you want
-        layouts = new int[]{
-                R.layout.intro_slide_1 };
+        layouts = new int[] {
+                R.layout.intro_slide_1,
+                R.layout.intro_slide_2
+        };
 
         // adding bottom dots
         addBottomDots(0);
@@ -66,10 +73,16 @@ public class IntroActivity extends AppCompatActivity {
         viewPager.setAdapter(myViewPagerAdapter);
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
 
-        btnSkip.setOnClickListener(new View.OnClickListener() {
+        btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                launchHomeScreen();
+                // checking for last page
+                // if last page home screen will be launched
+                int current = getItem(+1);
+                if (current > 1) {
+                    // move to previous screen
+                    viewPager.setCurrentItem(current - 2); // indexing here starts at 1, but item array at 0
+                }
             }
         });
 
@@ -98,14 +111,15 @@ public class IntroActivity extends AppCompatActivity {
         dotsLayout.removeAllViews();
         for (int i = 0; i < dots.length; i++) {
             dots[i] = new TextView(this);
-            dots[i].setText(Html.fromHtml("&#8226;"));
+            dots[i].setText(Html.fromHtml("&#8226;")); // bullet symbol
             dots[i].setTextSize(35);
             dots[i].setTextColor(colorsInactive[currentPage]);
             dotsLayout.addView(dots[i]);
         }
 
-        if (dots.length > 0)
+        if (dots.length > 0) {
             dots[currentPage].setTextColor(colorsActive[currentPage]);
+        }
     }
 
     private int getItem(int i) {
@@ -118,22 +132,26 @@ public class IntroActivity extends AppCompatActivity {
         finish();
     }
 
-    //  viewpager change listener
+    /**  viewpager change listener */
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
 
         @Override
         public void onPageSelected(int position) {
             addBottomDots(position);
 
-            // changing the next button text 'NEXT' / 'GOT IT'
+            // changing the next button text 'NEXT' / 'DONE'
             if (position == layouts.length - 1) {
-                // last page. make button text to GOT IT
+                // last page. make button text to DONE
                 btnNext.setText(getString(R.string.start));
-                btnSkip.setVisibility(View.GONE);
+                btnBack.setVisibility(View.VISIBLE);
+            } else if (position == 0) {
+                // first page. make back button gone
+                btnNext.setText(getString(R.string.next));
+                btnBack.setVisibility(View.GONE);
             } else {
                 // still pages are left
                 btnNext.setText(getString(R.string.next));
-                btnSkip.setVisibility(View.VISIBLE);
+                btnBack.setVisibility(View.VISIBLE);
             }
         }
 
@@ -165,14 +183,11 @@ public class IntroActivity extends AppCompatActivity {
     public class MyViewPagerAdapter extends PagerAdapter {
         private LayoutInflater layoutInflater;
 
-        public MyViewPagerAdapter() {
-        }
-
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            View view = layoutInflater.inflate(layouts[position], container, false);
+            View view = layoutInflater != null ? layoutInflater.inflate(layouts[position], container, false) : null;
             container.addView(view);
 
             return view;
