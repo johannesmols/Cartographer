@@ -6,18 +6,18 @@
     <string name="back">BACK</string>
     <string name="start">DONE</string>
 
-    <string name="slide_1_title">Hello Food!</string>
-    <string name="slide_1_desc">The easiest way to order food from your favourite restaurant!</string>
+    <string name="slide_1_title">Cartographer</string>
+    <string name="slide_1_desc">This app lets you analyze your personal location history that Google is recording.</string>
+    <string name="slide_1_desc2">Before we can start, we need you to download your personal file from the Google servers. We will guide you through this process.</string>
+    <string name="slide_1_content_description">Map icon</string>
 
-    <string name="slide_2_title">Movie Tickets</string>
-    <string name="slide_2_desc">Book movie tickets for your family and friends!</string>
+    <string name="slide_2_title">Downloading your file</string>
+    <string name="slide_2_desc">Click the button below to open the download page. Sign in with your Google account and select \"Location History\" in the \"JSON\" format. Google will notify you once the file is ready to download.</string>
+    <string name="slide_2_button">Download</string>
+    <string name="slide_2_content_description">Download icon</string>
 
-    <string name="slide_3_title">Great Discounts</string>
-    <string name="slide_3_desc">Best discounts on every single service we offer!</string>
-
-    <string name="slide_4_title">World Travel</string>
-    <string name="slide_4_desc">Book tickets of any transportation and travel the world!</string>
-
-    <string name="play_again_desc">To see the welcome slider again, goto Settings -> apps -> welcome slider -> clear data</string>
-    <string name="play_again">Play Again</string>
+    <string name="slide_3_title">Importing your file</string>
+    <string name="slide_3_desc">You\'re almost done! Click the button below to import the JSON formatted file you just downloaded. We will take the rest from there.</string>
+    <string name="slide_3_button">Import</string>
+    <string name="slide_3_content_description">Import icon</string>
 </resources>

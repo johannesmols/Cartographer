@@ -3,6 +3,7 @@ package itcom.cartographer;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
@@ -55,12 +56,12 @@ public class IntroActivity extends AppCompatActivity {
         // Hide back button on first page
         btnBack.setVisibility(View.GONE);
 
-
         // layouts of all welcome sliders
         // add few more layouts if you want
         layouts = new int[] {
                 R.layout.intro_slide_1,
-                R.layout.intro_slide_2
+                R.layout.intro_slide_2,
+                R.layout.intro_slide_3
         };
 
         // adding bottom dots
@@ -153,6 +154,8 @@ public class IntroActivity extends AppCompatActivity {
                 btnNext.setText(getString(R.string.next));
                 btnBack.setVisibility(View.VISIBLE);
             }
+
+            actionsForSpecificSlides(position);
         }
 
         @Override
@@ -165,6 +168,52 @@ public class IntroActivity extends AppCompatActivity {
 
         }
     };
+
+    private void actionsForSpecificSlides(int position) {
+        View view = viewPager.getChildAt(position);
+        switch (position) {
+            case 0:
+                break;
+            case 1: // download file
+                if (view != null) {
+                    Button downloadButton = view.findViewById(R.id.slide_2_download_button);
+                    if (downloadButton!= null) {
+                        downloadButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // open browser
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://takeout.google.com/settings/takeout"));
+                                startActivity(browserIntent);
+                            }
+                        });
+                    }
+                }
+                break;
+            case 2: // import data
+                if (view != null) {
+                    Button importButton = view.findViewById(R.id.slide_3_import_button);
+                    if (importButton != null) {
+                        importButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // open file dialog
+                                Intent intent = new Intent().setType("application/json").setAction(Intent.ACTION_GET_CONTENT);
+                                startActivityForResult(Intent.createChooser(intent, "Select a file"), 1); // 1 = file chooser
+                            }
+                        });
+                    }
+                }
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK) { // 1 = file chooser
+            Uri selectedfile = data.getData(); //The uri with the location of the file
+        }
+    }
 
     /**
      * Making notification bar transparent

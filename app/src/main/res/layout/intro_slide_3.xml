@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_screen2">
+    android:background="@color/bg_screen3">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -14,13 +14,13 @@
         <ImageView
             android:layout_width="@dimen/img_width_height"
             android:layout_height="@dimen/img_width_height"
-            android:src="@drawable/ic_cloud_download_black_24dp"
-            android:contentDescription="@string/slide_2_content_description"/>
+            android:src="@drawable/ic_file_upload_black_24dp"
+            android:contentDescription="@string/slide_3_content_description"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/slide_2_title"
+            android:text="@string/slide_3_title"
             android:textColor="@android:color/white"
             android:textSize="@dimen/slide_title"
             android:textStyle="bold" />
@@ -31,19 +31,19 @@
             android:layout_marginTop="20dp"
             android:paddingLeft="@dimen/desc_padding"
             android:paddingRight="@dimen/desc_padding"
-            android:text="@string/slide_2_desc"
+            android:text="@string/slide_3_desc"
             android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="@dimen/slide_desc" />
 
         <Button
-            android:id="@+id/slide_2_download_button"
+            android:id="@+id/slide_3_import_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:paddingStart="@dimen/desc_padding"
             android:paddingEnd="@dimen/desc_padding"
-            android:text="@string/slide_2_button" />
+            android:text="@string/slide_3_button" />
 
     </LinearLayout>
 </RelativeLayout>
