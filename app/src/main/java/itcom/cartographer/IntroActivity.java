@@ -19,6 +19,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import itcom.cartographer.Database.ProcessJSON;
+
 // From this tutorial: https://www.androidhive.info/2016/05/android-build-intro-slider-app/
 
 public class IntroActivity extends AppCompatActivity {
@@ -37,7 +39,7 @@ public class IntroActivity extends AppCompatActivity {
         // Checking for first time launch - before calling setContentView()
         prefManager = new PreferenceManager(this);
         if (!prefManager.isFirstTimeLaunch()) {
-            launchHomeScreen();
+            launchMainActivity();
             finish();
         }
 
@@ -96,8 +98,6 @@ public class IntroActivity extends AppCompatActivity {
                 if (current < layouts.length) {
                     // move to next screen
                     viewPager.setCurrentItem(current);
-                } else {
-                    launchHomeScreen();
                 }
             }
         });
@@ -127,9 +127,16 @@ public class IntroActivity extends AppCompatActivity {
         return viewPager.getCurrentItem() + i;
     }
 
-    private void launchHomeScreen() {
+    private void launchMainActivity() {
         prefManager.setFirstTimeLaunch(false);
-        startActivity(new Intent(IntroActivity.this, MainActivity.class));
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
+    }
+
+    private void launchJSONProcessor(Uri file) {
+        Intent launcher = new Intent(this, ProcessJSON.class);
+        launcher.putExtra("uri", file.toString());
+        startActivity(launcher);
         finish();
     }
 
@@ -143,14 +150,15 @@ public class IntroActivity extends AppCompatActivity {
             // changing the next button text 'NEXT' / 'DONE'
             if (position == layouts.length - 1) {
                 // last page. make button text to DONE
-                btnNext.setText(getString(R.string.start));
-                btnBack.setVisibility(View.VISIBLE);
+                btnNext.setVisibility(View.GONE);
             } else if (position == 0) {
                 // first page. make back button gone
+                btnNext.setVisibility(View.VISIBLE);
                 btnNext.setText(getString(R.string.next));
                 btnBack.setVisibility(View.GONE);
             } else {
                 // still pages are left
+                btnNext.setVisibility(View.VISIBLE);
                 btnNext.setText(getString(R.string.next));
                 btnBack.setVisibility(View.VISIBLE);
             }
@@ -211,7 +219,8 @@ public class IntroActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) { // 1 = file chooser
-            Uri selectedfile = data.getData(); //The uri with the location of the file
+            Uri selectedFile = data.getData(); //The uri with the location of the file
+            launchJSONProcessor(selectedFile);
         }
     }
 

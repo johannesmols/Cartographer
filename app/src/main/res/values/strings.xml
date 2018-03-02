@@ -1,10 +1,8 @@
 <resources>
     <string name="app_name">Cartographer</string>
 
-    <string name="title_activity_welcome">Home Screen</string>
     <string name="next">NEXT</string>
     <string name="back">BACK</string>
-    <string name="start">DONE</string>
 
     <string name="slide_1_title">Cartographer</string>
     <string name="slide_1_desc">This app lets you analyze your personal location history that Google is recording.</string>
@@ -20,4 +18,7 @@
     <string name="slide_3_desc">You\'re almost done! Click the button below to import the JSON formatted file you just downloaded. We will take the rest from there.</string>
     <string name="slide_3_button">Import</string>
     <string name="slide_3_content_description">Import icon</string>
+
+    <string name="json_processor_title">Processing your file</string>
+    <string name="json_processor_descr">This might take a few minutes.</string>
 </resources>
