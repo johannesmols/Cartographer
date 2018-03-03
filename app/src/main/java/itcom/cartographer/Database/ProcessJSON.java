@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -33,6 +34,7 @@ public class ProcessJSON extends AppCompatActivity {
     private Gson gson = new GsonBuilder().create();
 
     private WaveView waveView;
+    private TextView progressTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +48,7 @@ public class ProcessJSON extends AppCompatActivity {
         }
 
         waveView = findViewById(R.id.wave_view);
+        progressTextView = findViewById(R.id.process_json_progress_text);
 
         // Read intent to get the Uri of the JSON file
         Intent intent = getIntent();
@@ -86,7 +89,7 @@ public class ProcessJSON extends AppCompatActivity {
     /**
      * AsyncTask to handle the reading of the file without interrupting the main thread
      */
-    private static class AsyncJSONReader extends AsyncTask<HashMap<String, Object>, Integer, Long> {
+    private static class AsyncJSONReader extends AsyncTask<HashMap<String, Object>, Long, Long> {
 
         private WeakReference<ProcessJSON> activityReference;
 
@@ -109,11 +112,17 @@ public class ProcessJSON extends AppCompatActivity {
                 if (inputStream != null) {
                     fileSizeInBytes = inputStream.available(); // byte length of the file
                     BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+
+                    long lastPercentage = 0;
                     String current;
                     while ((current = br.readLine()) != null) {
                         byteCount += current.length();
                         double progressInPercent = ((double) byteCount / fileSizeInBytes) * 100.0;
-                        publishProgress((int)progressInPercent);
+                        System.out.println(progressInPercent);
+                        if (lastPercentage < (long) progressInPercent) {
+                            publishProgress((long) progressInPercent, byteCount, fileSizeInBytes);
+                            lastPercentage = (long) progressInPercent;
+                        }
                     }
                 }
             } catch (IOException e) {
@@ -124,13 +133,22 @@ public class ProcessJSON extends AppCompatActivity {
         }
 
         @Override
-        protected void onProgressUpdate(Integer... values) {
+        protected void onProgressUpdate(Long... values) {
             // get a reference to the activity if it is still there
             ProcessJSON activity = activityReference.get();
             if (activity == null || activity.isFinishing())
                 return;
 
-            activity.waveView.setProgress(values[0]);
+            if (values.length == 3) {
+                int progress = Integer.parseInt(String.valueOf(values[0]));
+                if (progress == 0) {
+                    progress = 1;
+                }
+                activity.waveView.setProgress(progress);
+
+                // This will break the wave view
+                activity.progressTextView.setText(activity.getString(R.string.json_processor_progress_text, values[1] / 1024, values[2] / 1024));
+            }
         }
 
         @Override
