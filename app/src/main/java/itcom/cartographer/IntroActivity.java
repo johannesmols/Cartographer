@@ -135,7 +135,7 @@ public class IntroActivity extends AppCompatActivity {
 
     private void launchJSONProcessor(Uri file) {
         Intent launcher = new Intent(this, ProcessJSON.class);
-        launcher.putExtra("uri", file.toString());
+        launcher.putExtra(getString(R.string.intent_intro_to_json_uri), file.toString());
         startActivity(launcher);
         finish();
     }
@@ -205,7 +205,8 @@ public class IntroActivity extends AppCompatActivity {
                             @Override
                             public void onClick(View view) {
                                 // open file dialog
-                                Intent intent = new Intent().setType("application/json").setAction(Intent.ACTION_GET_CONTENT);
+                                // TODO: When setting the MIME type to "application/json", large files can't be opened for some reason
+                                Intent intent = new Intent().setType("*/*").setAction(Intent.ACTION_GET_CONTENT);
                                 startActivityForResult(Intent.createChooser(intent, "Select a file"), 1); // 1 = file chooser
                             }
                         });

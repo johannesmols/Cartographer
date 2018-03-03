@@ -26,5 +26,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
+    compile 'com.google.code.gson:gson:2.8.2'
     compile 'com.github.john990:WaveView:v0.9'
 }

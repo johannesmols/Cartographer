@@ -21,4 +21,7 @@
 
     <string name="json_processor_title">Processing your file</string>
     <string name="json_processor_descr">This might take a few minutes.</string>
+
+    <!-- Intents -->
+    <string name="intent_intro_to_json_uri">uri</string>
 </resources>
