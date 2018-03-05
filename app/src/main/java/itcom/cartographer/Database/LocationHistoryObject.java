@@ -22,6 +22,9 @@ public class LocationHistoryObject {
         this.verticalAccuracy = verticalAccuracy;
     }
 
+    public LocationHistoryObject() {
+    }
+
     public String getTimestampMs() {
         return timestampMs;
     }

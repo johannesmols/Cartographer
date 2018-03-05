@@ -14,8 +14,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonToken;
 import com.john.waveview.WaveView;
 
@@ -30,8 +28,6 @@ import itcom.cartographer.PreferenceManager;
 import itcom.cartographer.R;
 
 public class ProcessJSON extends AppCompatActivity {
-
-    private Gson gson = new GsonBuilder().create();
 
     private WaveView waveView;
     private TextView progressTextView;
@@ -64,6 +60,9 @@ public class ProcessJSON extends AppCompatActivity {
         params.put("file", file);
         AsyncJSONReader asyncJSONReader = new AsyncJSONReader(this);
         asyncJSONReader.execute(params);
+
+        Database db = new Database(this, null, null, 1);
+        Log.i("Items in database:", String.valueOf(db.getDatapointCount()));
     }
 
     /**
@@ -100,7 +99,6 @@ public class ProcessJSON extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(HashMap<String, Object>[] hashMaps) {
-
             try {
                 Context context = (Context) hashMaps[0].get("context");
                 Uri uri = (Uri) hashMaps[0].get("file");
@@ -115,6 +113,9 @@ public class ProcessJSON extends AppCompatActivity {
                         System.out.println(percentage);
                     }
                 });
+
+                // Database
+                Database database = new Database(context, null, null, 1);
 
                 // Parsing of the JSON file
                 com.google.gson.stream.JsonReader jsonReader = new com.google.gson.stream.JsonReader(new InputStreamReader(progressInputStream));
@@ -132,34 +133,44 @@ public class ProcessJSON extends AppCompatActivity {
                                 if (jsonReader.peek().equals(JsonToken.BEGIN_OBJECT)) {
                                     jsonReader.beginObject();
 
+                                    LocationHistoryObject currentObject = new LocationHistoryObject();
+
                                     // go through each entry in the object
                                     while (jsonReader.hasNext()) {
                                         if (jsonReader.peek().equals(JsonToken.NAME)) {
                                             String nextName = jsonReader.nextName();
                                             switch (nextName) {
                                                 case "timestampMs":
-                                                    Log.i("timestampMs", jsonReader.nextString());
+                                                    currentObject.setTimestampMs(jsonReader.nextString());
+                                                    Log.i("timestampMs", currentObject.getTimestampMs());
                                                     break;
                                                 case "latitudeE7":
-                                                    Log.i("latitudeE7", String.valueOf(jsonReader.nextLong()));
+                                                    currentObject.setLatitudeE7(jsonReader.nextLong());
+                                                    Log.i("latitudeE7", String.valueOf(currentObject.getLatitudeE7()));
                                                     break;
                                                 case "longitudeE7":
-                                                    Log.i("longitudeE7", String.valueOf(jsonReader.nextLong()));
+                                                    currentObject.setLongitudeE7(jsonReader.nextLong());
+                                                    Log.i("longitudeE7", String.valueOf(currentObject.getLongitudeE7()));
                                                     break;
                                                 case "accuracy":
-                                                    Log.i("accuracy", String.valueOf(jsonReader.nextInt()));
+                                                    currentObject.setAccuracy(jsonReader.nextInt());
+                                                    Log.i("accuracy", String.valueOf(currentObject.getAccuracy()));
                                                     break;
                                                 case "velocity":
-                                                    Log.i("velocity", String.valueOf(jsonReader.nextInt()));
+                                                    currentObject.setVelocity(jsonReader.nextInt());
+                                                    Log.i("velocity", String.valueOf(currentObject.getVelocity()));
                                                     break;
                                                 case "heading":
-                                                    Log.i("heading", String.valueOf(jsonReader.nextInt()));
+                                                    currentObject.setHeading(jsonReader.nextInt());
+                                                    Log.i("heading", String.valueOf(currentObject.getHeading()));
                                                     break;
                                                 case "altitude":
-                                                    Log.i("altitude", String.valueOf(jsonReader.nextInt()));
+                                                    currentObject.setAltitude(jsonReader.nextInt());
+                                                    Log.i("altitude", String.valueOf(currentObject.getAltitude()));
                                                     break;
                                                 case "verticalAccuracy":
-                                                    Log.i("verticalAccuracy", String.valueOf(jsonReader.nextInt()));
+                                                    currentObject.setVerticalAccuracy(jsonReader.nextInt());
+                                                    Log.i("verticalAccuracy", String.valueOf(currentObject.getVerticalAccuracy()));
                                                     break;
                                                 case "activity":
                                                     // sub array
@@ -176,6 +187,9 @@ public class ProcessJSON extends AppCompatActivity {
 
                                     jsonReader.endObject(); // end the current object
                                     hasAnotherObjectInArray = jsonReader.peek().equals(JsonToken.BEGIN_OBJECT); // determines if there is another object coming up in the array or if it is done
+
+                                    // Put object in the database
+                                    database.addLocationHistoryEntry(currentObject);
                                 }
                             }
 
@@ -217,7 +231,7 @@ public class ProcessJSON extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Boolean successful) {
-            Log.i("Parsing successful: ", successful ? "true" : "false");
+            Log.i("Parsing successful: ", successful.toString());
         }
     }
 }
