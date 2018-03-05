@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -15,14 +16,12 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.stream.JsonToken;
 import com.john.waveview.WaveView;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
@@ -90,7 +89,7 @@ public class ProcessJSON extends AppCompatActivity {
     /**
      * AsyncTask to handle the reading of the file without interrupting the main thread
      */
-    private static class AsyncJSONReader extends AsyncTask<HashMap<String, Object>, Long, LinkedTreeMap> {
+    private static class AsyncJSONReader extends AsyncTask<HashMap<String, Object>, Long, Boolean> {
 
         private WeakReference<ProcessJSON> activityReference;
 
@@ -100,14 +99,14 @@ public class ProcessJSON extends AppCompatActivity {
         }
 
         @Override
-        protected LinkedTreeMap doInBackground(HashMap<String, Object>[] hashMaps) {
-            LinkedTreeMap linkedTreeMap = new LinkedTreeMap();
+        protected Boolean doInBackground(HashMap<String, Object>[] hashMaps) {
+
             try {
                 Context context = (Context) hashMaps[0].get("context");
                 Uri uri = (Uri) hashMaps[0].get("file");
 
+                // Using a custom input stream to get an estimate on the progress of the parsing
                 InputStream inputStream = context.getContentResolver().openInputStream(uri);
-
                 ProgressInputStream progressInputStream = new ProgressInputStream(inputStream);
                 progressInputStream.addListener(new ProgressInputStream.Listener() {
                     @Override
@@ -116,13 +115,86 @@ public class ProcessJSON extends AppCompatActivity {
                         System.out.println(percentage);
                     }
                 });
-                Reader reader = new BufferedReader(new InputStreamReader(progressInputStream));
-                linkedTreeMap = new Gson().fromJson(reader, LinkedTreeMap.class);
+
+                // Parsing of the JSON file
+                com.google.gson.stream.JsonReader jsonReader = new com.google.gson.stream.JsonReader(new InputStreamReader(progressInputStream));
+
+                // Check if the file is correct and starts with an object
+                if (jsonReader.hasNext() && jsonReader.peek().equals(JsonToken.BEGIN_OBJECT)) { // the very first object, parent of all objects in the file
+                    jsonReader.beginObject(); // consume the opening brackets of the first object
+                    if (jsonReader.hasNext() && jsonReader.peek().equals(JsonToken.NAME)) { // the array of the object, namely "locations". this contains all further objects in an array
+                        String firstObjectName = jsonReader.nextName(); // consume the name of the location object
+                        if (firstObjectName.equals("locations") && jsonReader.hasNext() && jsonReader.peek().equals(JsonToken.BEGIN_ARRAY)) { // the beginning of the "locations" array
+                            jsonReader.beginArray(); // consume the opening brackets of the array
+
+                            boolean hasAnotherObjectInArray = true;
+                            while (hasAnotherObjectInArray) { // loop through every object in the array
+                                if (jsonReader.peek().equals(JsonToken.BEGIN_OBJECT)) {
+                                    jsonReader.beginObject();
+
+                                    // go through each entry in the object
+                                    while (jsonReader.hasNext()) {
+                                        if (jsonReader.peek().equals(JsonToken.NAME)) {
+                                            String nextName = jsonReader.nextName();
+                                            switch (nextName) {
+                                                case "timestampMs":
+                                                    Log.i("timestampMs", jsonReader.nextString());
+                                                    break;
+                                                case "latitudeE7":
+                                                    Log.i("latitudeE7", String.valueOf(jsonReader.nextLong()));
+                                                    break;
+                                                case "longitudeE7":
+                                                    Log.i("longitudeE7", String.valueOf(jsonReader.nextLong()));
+                                                    break;
+                                                case "accuracy":
+                                                    Log.i("accuracy", String.valueOf(jsonReader.nextInt()));
+                                                    break;
+                                                case "velocity":
+                                                    Log.i("velocity", String.valueOf(jsonReader.nextInt()));
+                                                    break;
+                                                case "heading":
+                                                    Log.i("heading", String.valueOf(jsonReader.nextInt()));
+                                                    break;
+                                                case "altitude":
+                                                    Log.i("altitude", String.valueOf(jsonReader.nextInt()));
+                                                    break;
+                                                case "verticalAccuracy":
+                                                    Log.i("verticalAccuracy", String.valueOf(jsonReader.nextInt()));
+                                                    break;
+                                                case "activity":
+                                                    // sub array
+                                                    Log.e("activity", "Skipping for now...");
+                                                    jsonReader.skipValue();
+                                                    break;
+                                                default:
+                                                    Log.i("Undefined name", "Undefined name found in JSON");
+                                                    jsonReader.skipValue(); // skip the unknown value
+                                                    break;
+                                            }
+                                        }
+                                    }
+
+                                    jsonReader.endObject(); // end the current object
+                                    hasAnotherObjectInArray = jsonReader.peek().equals(JsonToken.BEGIN_OBJECT); // determines if there is another object coming up in the array or if it is done
+                                }
+                            }
+
+                            if (jsonReader.peek().equals(JsonToken.END_ARRAY)) { // ends the array when it has reached it's end
+                                jsonReader.endArray();
+                            }
+                        }
+                    }
+
+                    if (jsonReader.peek().equals(JsonToken.END_OBJECT)) { // ends the main object in the file
+                        jsonReader.endObject();
+                    }
+                }
+                jsonReader.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            return linkedTreeMap;
+            return true;
         }
 
         @Override
@@ -144,8 +216,8 @@ public class ProcessJSON extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(LinkedTreeMap aLinkedTreeMap) {
-            System.out.println(aLinkedTreeMap.toString());
+        protected void onPostExecute(Boolean successful) {
+            Log.i("Parsing successful: ", successful ? "true" : "false");
         }
     }
 }
