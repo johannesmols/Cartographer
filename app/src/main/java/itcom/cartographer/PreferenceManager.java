@@ -31,7 +31,6 @@ public class PreferenceManager {
     }
 
     public boolean isFirstTimeLaunch() {
-        // TODO: Change back
-        return true; //preferences.getBoolean(IS_FIRST_TIME_LAUNCH, true);
+        return preferences.getBoolean(IS_FIRST_TIME_LAUNCH, true);
     }
 }

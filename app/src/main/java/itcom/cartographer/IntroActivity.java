@@ -205,8 +205,7 @@ public class IntroActivity extends AppCompatActivity {
                             @Override
                             public void onClick(View view) {
                                 // open file dialog
-                                // TODO: When setting the MIME type to "application/json", large files can't be opened for some reason
-                                Intent intent = new Intent().setType("application/*").setAction(Intent.ACTION_GET_CONTENT);
+                                Intent intent = new Intent().setType(Intent.normalizeMimeType("application/json")).setAction(Intent.ACTION_GET_CONTENT);
                                 startActivityForResult(Intent.createChooser(intent, "Select a file"), 1); // 1 = file chooser
                             }
                         });
