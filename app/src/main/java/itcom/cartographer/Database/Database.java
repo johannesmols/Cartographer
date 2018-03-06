@@ -1,11 +1,13 @@
 package itcom.cartographer.Database;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
+
+import java.util.ArrayList;
 
 public class Database extends SQLiteOpenHelper {
 
@@ -72,23 +74,42 @@ public class Database extends SQLiteOpenHelper {
         return (int) DatabaseUtils.queryNumEntries(db, TABLE_ACTIVITIES);
     }
 
-    public void addLocationHistoryEntry(LocationHistoryObject lhObject) {
+    public void deleteAllLocationHistoryEntries() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(TABLE_LOCATION_HISTORY, null, null);
+    }
+
+    public void deleteAllActivityEntries() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(TABLE_ACTIVITIES, null, null);
+    }
+
+    public void addLocationHistoryEntry(ArrayList<LocationHistoryObject> lhObjects) {
+        SQLiteDatabase db = getWritableDatabase();
+        String sql = "INSERT INTO " + TABLE_LOCATION_HISTORY + " VALUES (?,?,?,?,?,?,?,?,?);";
+        SQLiteStatement statement = db.compileStatement(sql);
+        db.beginTransaction();
+
         try {
-            SQLiteDatabase db = getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(LH_TIMESTAMP, lhObject.getTimestampMs());
-            values.put(LH_LATITUDE_E7, lhObject.getLatitudeE7());
-            values.put(LH_LONGITUDE_E7, lhObject.getLongitudeE7());
-            values.put(LH_ACCURACY, lhObject.getAccuracy());
-            values.put(LH_VELOCITY, lhObject.getVelocity());
-            values.put(LH_HEADING, lhObject.getHeading());
-            values.put(LH_ALTITUDE, lhObject.getAltitude());
-            values.put(LH_VERTICAL_ACCURACY, lhObject.getVerticalAccuracy());
-            db.insert(TABLE_LOCATION_HISTORY, null, values);
-            db.close();
+            for (LocationHistoryObject lhObject : lhObjects) {
+                statement.clearBindings();
+                statement.bindLong(2, Long.parseLong(lhObject.getTimestampMs()));
+                statement.bindLong(3, lhObject.getLatitudeE7());
+                statement.bindLong(4, lhObject.getLongitudeE7());
+                statement.bindLong(5, lhObject.getAccuracy());
+                statement.bindLong(6, lhObject.getVelocity());
+                statement.bindLong(7, lhObject.getHeading());
+                statement.bindLong(8, lhObject.getAltitude());
+                statement.bindLong(9, lhObject.getVerticalAccuracy());
+                statement.execute();
+            }
+            db.setTransactionSuccessful();
         } catch (Exception e) {
             Log.e("Database Error", e.getMessage());
             e.printStackTrace();
+        } finally {
+            db.endTransaction();
+            db.close();
         }
     }
 }

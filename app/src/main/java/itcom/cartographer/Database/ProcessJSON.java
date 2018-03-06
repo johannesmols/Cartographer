@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import itcom.cartographer.MainActivity;
@@ -60,9 +61,6 @@ public class ProcessJSON extends AppCompatActivity {
         params.put("file", file);
         AsyncJSONReader asyncJSONReader = new AsyncJSONReader(this);
         asyncJSONReader.execute(params);
-
-        Database db = new Database(this, null, null, 1);
-        Log.i("Items in database:", String.valueOf(db.getDatapointCount()));
     }
 
     /**
@@ -117,6 +115,10 @@ public class ProcessJSON extends AppCompatActivity {
                 // Database
                 Database database = new Database(context, null, null, 1);
 
+                // Clear the database before reading a new dataset onto it
+                database.deleteAllLocationHistoryEntries();
+                database.deleteAllActivityEntries();
+
                 // Parsing of the JSON file
                 com.google.gson.stream.JsonReader jsonReader = new com.google.gson.stream.JsonReader(new InputStreamReader(progressInputStream));
 
@@ -128,6 +130,7 @@ public class ProcessJSON extends AppCompatActivity {
                         if (firstObjectName.equals("locations") && jsonReader.hasNext() && jsonReader.peek().equals(JsonToken.BEGIN_ARRAY)) { // the beginning of the "locations" array
                             jsonReader.beginArray(); // consume the opening brackets of the array
 
+                            ArrayList<LocationHistoryObject> parsedObjects = new ArrayList<>();
                             boolean hasAnotherObjectInArray = true;
                             while (hasAnotherObjectInArray) { // loop through every object in the array
                                 if (jsonReader.peek().equals(JsonToken.BEGIN_OBJECT)) {
@@ -189,11 +192,22 @@ public class ProcessJSON extends AppCompatActivity {
                                     hasAnotherObjectInArray = jsonReader.peek().equals(JsonToken.BEGIN_OBJECT); // determines if there is another object coming up in the array or if it is done
 
                                     // Put object in the database
-                                    database.addLocationHistoryEntry(currentObject);
+                                    if (parsedObjects.size() < 1024) {
+                                        parsedObjects.add(currentObject);
+                                    } else {
+                                        database.addLocationHistoryEntry(parsedObjects);
+                                        parsedObjects.clear();
+                                    }
                                 }
                             }
 
-                            if (jsonReader.peek().equals(JsonToken.END_ARRAY)) { // ends the array when it has reached it's end
+                            // Insert remaining objects to the database
+                            if (parsedObjects.size() > 0) {
+                                database.addLocationHistoryEntry(parsedObjects);
+                            }
+
+                            // Ends the array when it has reached it's end
+                            if (jsonReader.peek().equals(JsonToken.END_ARRAY)) {
                                 jsonReader.endArray();
                             }
                         }
@@ -204,6 +218,8 @@ public class ProcessJSON extends AppCompatActivity {
                     }
                 }
                 jsonReader.close();
+
+                Log.i("Entry count", String.valueOf(database.getDatapointCount()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
