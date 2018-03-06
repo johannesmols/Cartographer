@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">Cartographer</string>
+
+    <string name="next">NEXT</string>
+    <string name="back">BACK</string>
+
+    <string name="slide_1_title">Cartographer</string>
+    <string name="slide_1_desc">This app lets you analyze your personal location history that Google is recording.</string>
+    <string name="slide_1_desc2">Before we can start, we need you to download your personal file from the Google servers. We will guide you through this process.</string>
+    <string name="slide_1_content_description">Map icon</string>
+
+    <string name="slide_2_title">Downloading your file</string>
+    <string name="slide_2_desc">Click the button below to open the download page. Sign in with your Google account and select \"Location History\" in the \"JSON\" format. Google will notify you once the file is ready to download.</string>
+    <string name="slide_2_button">Download</string>
+    <string name="slide_2_content_description">Download icon</string>
+
+    <string name="slide_3_title">Importing your file</string>
+    <string name="slide_3_desc">You\'re almost done! Click the button below to import the JSON formatted file you just downloaded. We will take the rest from there.</string>
+    <string name="slide_3_button">Import</string>
+    <string name="slide_3_content_description">Import icon</string>
+
+    <string name="json_processor_title">Processing your file</string>
+    <string name="json_processor_descr">This might take a few minutes.</string>
+    <string name="json_processor_progress_text">%1$d kB of %2$d kB</string>
+
+    <!-- Intents -->
+    <string name="intent_intro_to_json_uri">uri</string>
 </resources>
