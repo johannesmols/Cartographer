@@ -59,7 +59,16 @@ public class ProcessJSON extends AppCompatActivity {
         HashMap<String, Object> params = new HashMap<>();
         params.put("context", this);
         params.put("file", file);
-        AsyncJSONReader asyncJSONReader = new AsyncJSONReader(this);
+        AsyncJSONReader asyncJSONReader = new AsyncJSONReader(this, new AsyncJSONReader.AsyncResponse() {
+            @Override
+            public void processFinished(Boolean result) {
+                if (result) {
+                    launchMainActivity();
+                } else {
+                    Log.e("Error", "Error parsing file");
+                }
+            }
+        });
         asyncJSONReader.execute(params);
     }
 
@@ -90,9 +99,15 @@ public class ProcessJSON extends AppCompatActivity {
 
         private WeakReference<ProcessJSON> activityReference;
 
+        private AsyncResponse delegate = null;
+        public interface AsyncResponse {
+            void processFinished(Boolean result);
+        }
+
         // only retain a weak reference to the activity
-        AsyncJSONReader(ProcessJSON context) {
+        AsyncJSONReader(ProcessJSON context, AsyncResponse delegate) {
             activityReference = new WeakReference<>(context);
+            this.delegate = delegate;
         }
 
         @Override
@@ -247,7 +262,7 @@ public class ProcessJSON extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Boolean successful) {
-            Log.i("Parsing successful: ", successful.toString());
+            delegate.processFinished(successful);
         }
     }
 }
