@@ -205,7 +205,7 @@ public class IntroActivity extends AppCompatActivity {
                             @Override
                             public void onClick(View view) {
                                 // open file dialog
-                                Intent intent = new Intent().setType(Intent.normalizeMimeType("application/json")).setAction(Intent.ACTION_GET_CONTENT);
+                                Intent intent = new Intent().setType(Intent.normalizeMimeType("*/*")).setAction(Intent.ACTION_GET_CONTENT);
                                 startActivityForResult(Intent.createChooser(intent, "Select a file"), 1); // 1 = file chooser
                             }
                         });
