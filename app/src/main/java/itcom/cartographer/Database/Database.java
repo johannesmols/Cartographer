@@ -61,6 +61,7 @@ public class Database extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCATION_HISTORY);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTIVITIES);
         onCreate(sqLiteDatabase);
     }
 
@@ -84,7 +85,7 @@ public class Database extends SQLiteOpenHelper {
         db.delete(TABLE_ACTIVITIES, null, null);
     }
 
-    public void addLocationHistoryEntry(ArrayList<LocationHistoryObject> lhObjects) {
+    public void addLocationHistoryEntries(ArrayList<LocationHistoryObject> lhObjects) {
         SQLiteDatabase db = getWritableDatabase();
         String sql = "INSERT INTO " + TABLE_LOCATION_HISTORY + " VALUES (?,?,?,?,?,?,?,?,?);";
         SQLiteStatement statement = db.compileStatement(sql);
