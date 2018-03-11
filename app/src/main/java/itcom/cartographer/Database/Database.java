@@ -1,13 +1,22 @@
 package itcom.cartographer.Database;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.graphics.Point;
 import android.util.Log;
 
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.model.GeocodingResult;
+import com.google.maps.model.LatLng;
+
 import java.util.ArrayList;
+
+import itcom.cartographer.Utils.CoordinateUtils;
 
 public class Database extends SQLiteOpenHelper {
 
@@ -39,21 +48,21 @@ public class Database extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String query = "CREATE TABLE " + TABLE_LOCATION_HISTORY + "(" +
-                LH_ID                   + " INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-                LH_TIMESTAMP            + " BIGINT NOT NULL, " +
-                LH_LATITUDE_E7          + " BIGINT NOT NULL, " +
-                LH_LONGITUDE_E7         + " BIGINT_NOT NULL, " +
-                LH_ACCURACY             + " INTEGER NOT NULL, " +
-                LH_VELOCITY             + " INTEGER, " +
-                LH_HEADING              + " INTEGER, " +
-                LH_ALTITUDE             + " INTEGER, " +
-                LH_VERTICAL_ACCURACY    + " INTEGER" +
+                LH_ID + " INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                LH_TIMESTAMP + " BIGINT NOT NULL, " +
+                LH_LATITUDE_E7 + " BIGINT NOT NULL, " +
+                LH_LONGITUDE_E7 + " BIGINT_NOT NULL, " +
+                LH_ACCURACY + " INTEGER NOT NULL, " +
+                LH_VELOCITY + " INTEGER, " +
+                LH_HEADING + " INTEGER, " +
+                LH_ALTITUDE + " INTEGER, " +
+                LH_VERTICAL_ACCURACY + " INTEGER" +
                 ");";
         sqLiteDatabase.execSQL(query);
 
         query = "CREATE TABLE " + TABLE_ACTIVITIES + "(" +
-                AC_ID +         " INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-                AC_TIMESTAMP +  " BIGINT NOT NULL" +
+                AC_ID + " INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                AC_TIMESTAMP + " BIGINT NOT NULL" +
                 ");";
         sqLiteDatabase.execSQL(query);
     }
@@ -68,6 +77,46 @@ public class Database extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         return (int) DatabaseUtils.queryNumEntries(db, TABLE_LOCATION_HISTORY);
     }
+
+    public String getFavouritePlaces() {
+        String latestAddress = "";
+        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " + TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN 1517296083822 AND 1518790784697";
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        ArrayList<Point> coordinates = new ArrayList<>();
+
+        try {
+            while (cursor.moveToNext()) {
+                int lat = cursor.getInt(cursor.getColumnIndex("lh_latitude_e7"));
+                int lon = cursor.getInt(cursor.getColumnIndex("lh_longitude_e7"));
+                coordinates.add(new Point(lat, lon));
+            }
+        } finally {
+            cursor.close();
+        }
+
+        //this is just a test of the getDistanceBetweenTwoPoints method
+        System.out.println(CoordinateUtils.getDistanceBetweenTwoPoints(55.6482684, 12.5526691, 55.6481274, 12.5526561));
+
+        LatLng latestLocation = new LatLng(coordinates.get(0).x / 10000000, coordinates.get(0).y / 10000000);
+        System.out.println(latestLocation);
+        try {
+            GeoApiContext context = new GeoApiContext.Builder()
+                    .apiKey("AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE")
+                    .build();
+            GeocodingResult[] results = GeocodingApi.reverseGeocode(context, latestLocation).await();
+            System.out.println("results");
+            System.out.println(results[0].formattedAddress);
+            latestAddress = results[0].formattedAddress;
+        } catch (final Exception e) {
+            System.out.println(e.getMessage());
+            latestAddress = "Error";
+        }
+
+
+        return latestAddress;
+    }
+
 
     public int getActivitesCount() {
         SQLiteDatabase db = getReadableDatabase();

@@ -18,6 +18,10 @@ android {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:26.1.0'
@@ -28,4 +32,7 @@ dependencies {
 
     compile 'com.google.code.gson:gson:2.8.2'
     compile 'com.github.john990:WaveView:v0.9'
+
+    compile 'com.google.maps:google-maps-services:0.2.6'
+    compile 'org.slf4j:slf4j-nop:1.7.25'
 }

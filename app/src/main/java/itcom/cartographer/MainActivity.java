@@ -12,8 +12,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Database db = new Database(this, null, null, 1);
+
 
         TextView textView = findViewById(R.id.hello_world);
-        textView.setText("Entries: " + new Database(this, null, null, 1).getDatapointCount());
+        textView.setText("Entries: " + db.getDatapointCount());
+
+        TextView latestAddress = findViewById(R.id.latest_address);
+        latestAddress.setText(db.getFavouritePlaces());
     }
 }
