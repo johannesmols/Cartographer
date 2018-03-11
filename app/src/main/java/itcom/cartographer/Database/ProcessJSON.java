@@ -210,7 +210,7 @@ public class ProcessJSON extends AppCompatActivity {
                                     if (parsedObjects.size() < 1024) {
                                         parsedObjects.add(currentObject);
                                     } else {
-                                        database.addLocationHistoryEntry(parsedObjects);
+                                        database.addLocationHistoryEntries(parsedObjects);
                                         parsedObjects.clear();
                                     }
                                 }
@@ -218,7 +218,7 @@ public class ProcessJSON extends AppCompatActivity {
 
                             // Insert remaining objects to the database
                             if (parsedObjects.size() > 0) {
-                                database.addLocationHistoryEntry(parsedObjects);
+                                database.addLocationHistoryEntries(parsedObjects);
                             }
 
                             // Ends the array when it has reached it's end
