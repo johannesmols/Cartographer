@@ -80,7 +80,7 @@ public class Database extends SQLiteOpenHelper {
     }
 
     public String getFavouritePlaces() {
-        String latestAddress = "";
+        String latestAddress;
         String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " + TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN 1517296083822 AND 1518790784697";
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
@@ -99,7 +99,7 @@ public class Database extends SQLiteOpenHelper {
         //this is just a test of the getDistanceBetweenTwoPoints method
         System.out.println(CoordinateUtils.getDistanceBetweenTwoPoints(55.6482684, 12.5526691, 55.6481274, 12.5526561));
 
-        LatLng latestLocation = new LatLng(coordinates.get(0).x / 10000000, coordinates.get(0).y / 10000000);
+        LatLng latestLocation = new LatLng(coordinates.get(0).x / 10000000d, coordinates.get(0).y / 10000000d);
         System.out.println(latestLocation);
         try {
             GeoApiContext context = new GeoApiContext.Builder()
