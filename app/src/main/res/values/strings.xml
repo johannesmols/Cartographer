@@ -14,10 +14,15 @@
     <string name="slide_2_button">Download</string>
     <string name="slide_2_content_description">Download icon</string>
 
-    <string name="slide_3_title">Importing your file</string>
-    <string name="slide_3_desc">You\'re almost done! Click the button below to import the JSON formatted file you just downloaded. We will take the rest from there.</string>
-    <string name="slide_3_button">Import</string>
-    <string name="slide_3_content_description">Import icon</string>
+    <string name="slide_3_title">Unzipping the archive</string>
+    <string name="slide_3_desc">The file you just downloaded comes in an archive. You need to extract the files in order to use them. You can click the button below and we will handle it for you. You just need to select the downloaded archive.</string>
+    <string name="slide_3_button">Extract</string>
+    <string name="slide_3_content_description">Unarchive icon</string>
+
+    <string name="slide_4_title">Importing your file</string>
+    <string name="slide_4_desc">You\'re almost done! Click the button below to import the JSON formatted file you just downloaded. We will take the rest from there.</string>
+    <string name="slide_4_button">Import</string>
+    <string name="slide_4_content_description">Import icon</string>
 
     <string name="json_processor_title">Processing your file</string>
     <string name="json_processor_descr">This might take a few minutes.</string>

@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import itcom.cartographer.Database.ProcessJSON;
 import itcom.cartographer.Utils.PreferenceManager;
+import itcom.cartographer.Utils.Unzipper;
 
 // From this tutorial: https://www.androidhive.info/2016/05/android-build-intro-slider-app/
 
@@ -65,7 +66,8 @@ public class IntroActivity extends AppCompatActivity {
         layouts = new int[] {
                 R.layout.intro_slide_1,
                 R.layout.intro_slide_2,
-                R.layout.intro_slide_3
+                R.layout.intro_slide_3,
+                R.layout.intro_slide_4
         };
 
         // adding bottom dots
@@ -192,16 +194,31 @@ public class IntroActivity extends AppCompatActivity {
                     }
                 }
                 break;
-            case 2: // import data
+            case 2: // unzip
                 if (view != null) {
-                    Button importButton = view.findViewById(R.id.slide_3_import_button);
+                    Button extractButton = view.findViewById(R.id.slide_3_extract_button);
+                    if (extractButton != null) {
+                        extractButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // open file dialog
+                                Intent browserIntent = new Intent().setType(Intent.normalizeMimeType("*/*")).setAction(Intent.ACTION_GET_CONTENT);
+                                startActivityForResult(Intent.createChooser(browserIntent, "Select a file"), 2); // 2 = file chooser for zip file
+                            }
+                        });
+                    }
+                }
+                break;
+            case 3: // import data
+                if (view != null) {
+                    Button importButton = view.findViewById(R.id.slide_4_import_button);
                     if (importButton != null) {
                         importButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 // open file dialog
                                 Intent intent = new Intent().setType(Intent.normalizeMimeType("*/*")).setAction(Intent.ACTION_GET_CONTENT);
-                                startActivityForResult(Intent.createChooser(intent, "Select a file"), 1); // 1 = file chooser
+                                startActivityForResult(Intent.createChooser(intent, "Select a file"), 1); // 1 = file chooser for json file
                             }
                         });
                     }
@@ -216,8 +233,11 @@ public class IntroActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) { // 1 = file chooser
-            Uri selectedFile = data.getData(); //The uri with the location of the file
+            Uri selectedFile = data.getData(); // The uri with the location of the file
             launchJSONProcessor(selectedFile);
+        } else if (requestCode == 2 && resultCode == RESULT_OK) { // 2 = file chooser for zip file
+            Uri selectedFile = data.getData();
+            new Unzipper(this).unzip(selectedFile);
         }
     }
 
