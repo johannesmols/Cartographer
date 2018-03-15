@@ -16,7 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Intro">
 
-        <activity android:name=".IntroActivity">
+        <activity
+            android:name=".IntroActivity"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,6 +33,7 @@
 
         <activity
             android:name=".Database.ProcessJSON"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Intro" />
     </application>
 
