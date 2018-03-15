@@ -74,19 +74,19 @@ public class IntroActivity extends AppCompatActivity {
         // making notification bar transparent
         changeStatusBarColor();
 
-        myViewPagerAdapter = new MyViewPagerAdapter();
+        myViewPagerAdapter = new MyViewPagerAdapter(this);
         viewPager.setAdapter(myViewPagerAdapter);
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
+        viewPager.setOffscreenPageLimit(layouts.length);
 
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // checking for last page
                 // if last page home screen will be launched
-                int current = getItem(+1);
-                if (current > 1) {
+                if (viewPager.getCurrentItem() > 0) {
                     // move to previous screen
-                    viewPager.setCurrentItem(current - 2); // indexing here starts at 1, but item array at 0
+                    viewPager.setCurrentItem(viewPager.getCurrentItem() - 1, true);
                 }
             }
         });
@@ -96,10 +96,8 @@ public class IntroActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // checking for last page
                 // if last page home screen will be launched
-                int current = getItem(+1);
-                if (current < layouts.length) {
-                    // move to next screen
-                    viewPager.setCurrentItem(current); // this means +1 because indexing here starts at 1, but item array at 0
+                if (viewPager.getCurrentItem() < layouts.length - 1) {
+                    viewPager.setCurrentItem(viewPager.getCurrentItem() + 1, true);
                 }
             }
         });
@@ -125,10 +123,6 @@ public class IntroActivity extends AppCompatActivity {
         }
     }
 
-    private int getItem(int i) {
-        return viewPager.getCurrentItem() + i;
-    }
-
     private void launchMainActivity() {
         prefManager.setFirstTimeLaunch(false);
         startActivity(new Intent(this, MainActivity.class));
@@ -144,7 +138,6 @@ public class IntroActivity extends AppCompatActivity {
 
     /**  viewpager change listener */
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
-
         @Override
         public void onPageSelected(int position) {
             addBottomDots(position);
@@ -243,11 +236,16 @@ public class IntroActivity extends AppCompatActivity {
      * View pager adapter
      */
     public class MyViewPagerAdapter extends PagerAdapter {
+        private Context context;
         private LayoutInflater layoutInflater;
+
+        public MyViewPagerAdapter(Context context) {
+            this.context = context;
+        }
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            layoutInflater = LayoutInflater.from(context);
 
             View view = layoutInflater != null ? layoutInflater.inflate(layouts[position], container, false) : null;
             container.addView(view);
@@ -271,5 +269,7 @@ public class IntroActivity extends AppCompatActivity {
             View view = (View) object;
             container.removeView(view);
         }
+
+
     }
 }
