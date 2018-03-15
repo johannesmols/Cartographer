@@ -1,4 +1,4 @@
-package itcom.cartographer;
+package itcom.cartographer.Utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;

@@ -1,9 +1,5 @@
 package itcom.cartographer.Utils;
 
-/**
- * Created by Boris on 3/11/2018.
- */
-
 public class CoordinateUtils {
 
     public static double getDistanceBetweenTwoPoints(double lat1, double lon1, double lat2,

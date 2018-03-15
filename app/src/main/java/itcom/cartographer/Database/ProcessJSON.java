@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import itcom.cartographer.MainActivity;
-import itcom.cartographer.PreferenceManager;
+import itcom.cartographer.Utils.PreferenceManager;
 import itcom.cartographer.R;
 
 public class ProcessJSON extends AppCompatActivity {

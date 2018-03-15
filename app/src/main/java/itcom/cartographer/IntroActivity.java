@@ -20,10 +20,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import itcom.cartographer.Database.ProcessJSON;
+import itcom.cartographer.Utils.PreferenceManager;
 
 // From this tutorial: https://www.androidhive.info/2016/05/android-build-intro-slider-app/
 
 public class IntroActivity extends AppCompatActivity {
+
     private ViewPager viewPager;
     private MyViewPagerAdapter myViewPagerAdapter;
     private LinearLayout dotsLayout;
@@ -97,7 +99,7 @@ public class IntroActivity extends AppCompatActivity {
                 int current = getItem(+1);
                 if (current < layouts.length) {
                     // move to next screen
-                    viewPager.setCurrentItem(current);
+                    viewPager.setCurrentItem(current); // this means +1 because indexing here starts at 1, but item array at 0
                 }
             }
         });
@@ -149,17 +151,16 @@ public class IntroActivity extends AppCompatActivity {
 
             // changing the next button text 'NEXT' / 'DONE'
             if (position == layouts.length - 1) {
-                // last page. make button text to DONE
+                // last page
                 btnNext.setVisibility(View.GONE);
+                btnBack.setVisibility(View.VISIBLE);
             } else if (position == 0) {
                 // first page. make back button gone
                 btnNext.setVisibility(View.VISIBLE);
-                btnNext.setText(getString(R.string.next));
                 btnBack.setVisibility(View.GONE);
             } else {
                 // still pages are left
                 btnNext.setVisibility(View.VISIBLE);
-                btnNext.setText(getString(R.string.next));
                 btnBack.setVisibility(View.VISIBLE);
             }
 
@@ -179,6 +180,7 @@ public class IntroActivity extends AppCompatActivity {
 
     private void actionsForSpecificSlides(int position) {
         View view = viewPager.getChildAt(position);
+
         switch (position) {
             case 0:
                 break;
@@ -211,6 +213,8 @@ public class IntroActivity extends AppCompatActivity {
                         });
                     }
                 }
+                break;
+            default:
                 break;
         }
     }
