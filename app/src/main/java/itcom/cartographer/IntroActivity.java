@@ -18,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import itcom.cartographer.Database.ProcessJSON;
 import itcom.cartographer.Utils.PreferenceManager;
@@ -232,12 +233,30 @@ public class IntroActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 && resultCode == RESULT_OK) { // 1 = file chooser
+        if (requestCode == 1 && resultCode == RESULT_OK) { // 1 = file chooser for json file
             Uri selectedFile = data.getData(); // The uri with the location of the file
-            launchJSONProcessor(selectedFile);
+            if (selectedFile != null) {
+                String type = getContentResolver().getType(selectedFile);
+                if (type != null) {
+                    if (type.equals("application/json")) {
+                        launchJSONProcessor(selectedFile);
+                    } else {
+                        Toast.makeText(this, getString(R.string.toast_select_json), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
         } else if (requestCode == 2 && resultCode == RESULT_OK) { // 2 = file chooser for zip file
             Uri selectedFile = data.getData();
-            new Unzipper(this).unzip(selectedFile);
+            if (selectedFile != null) {
+                String type = getContentResolver().getType(selectedFile);
+                if (type != null) {
+                    if (type.equals("application/zip") || type.equals("application/x-zip") || type.equals("x-compress") || type.equals("x-compressed") || type.equals("x-zip-compressed")) {
+                        new Unzipper(this).unzip(selectedFile);
+                    } else {
+                        Toast.makeText(this, getString(R.string.toast_select_zip), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
         }
     }
 

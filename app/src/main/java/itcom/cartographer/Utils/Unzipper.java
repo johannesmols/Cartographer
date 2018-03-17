@@ -1,5 +1,6 @@
 package itcom.cartographer.Utils;
 
+import android.Manifest;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,9 +9,12 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.widget.Toast;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+
+import itcom.cartographer.R;
 
 public class Unzipper {
 
@@ -26,19 +30,33 @@ public class Unzipper {
             String filePath = getPath(context, file);
 
             // Build destination path to be in the same directory as the zip file, by taking the zip file path and removing the last part
-            String[] destinationArray = filePath != null ? filePath.split("(?=/)") : new String[0];
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < destinationArray.length - 1; i++) { // loop until the second last item, so the file name is omitted
-                stringBuilder.append(destinationArray[i]);
-            }
-            stringBuilder.append("/");
-            String destination = stringBuilder.toString();
+            if (filePath != null) {
+                String[] destinationArray = filePath.split("(?=/)");
+                StringBuilder stringBuilder = new StringBuilder();
+                for (int i = 0; i < destinationArray.length - 1; i++) { // loop until the second last item, so the file name is omitted
+                    stringBuilder.append(destinationArray[i]);
+                }
+                stringBuilder.append("/");
+                String destination = stringBuilder.toString();
 
-            ZipFile zipFile = new ZipFile(filePath);
-            if (zipFile.isEncrypted()) {
-                throw new ZipException("File is encrypted");
+                // Check for read file permission
+                Permissions permissions = new Permissions(context);
+                if (!permissions.checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    permissions.askForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Permissions.RequestCodes.WRITE_EXTERNAL_STORAGE);
+                    if (!permissions.checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        Toast.makeText(context, context.getString(R.string.toast_permission_denied), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
+                ZipFile zipFile = new ZipFile(filePath);
+                if (zipFile.isEncrypted()) {
+                    throw new ZipException("File is encrypted");
+                }
+                zipFile.extractAll(destination);
+            } else {
+                Toast.makeText(context, context.getString(R.string.toast_zip_error), Toast.LENGTH_LONG).show();
             }
-            zipFile.extractAll(destination);
         } catch (ZipException e) {
             e.printStackTrace();
         }

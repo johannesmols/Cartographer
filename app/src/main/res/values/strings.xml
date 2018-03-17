@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Cartographer</string>
 
+
+    <!-- Intro Slides -->
     <string name="next">NEXT</string>
     <string name="back">BACK</string>
 
@@ -27,6 +29,12 @@
     <string name="json_processor_title">Processing your file</string>
     <string name="json_processor_descr">This might take a few minutes.</string>
     <string name="json_processor_progress_text">%1$d kB of %2$d kB</string>
+
+    <!-- Toasts -->
+    <string name="toast_select_json">Please select a JSON file</string>
+    <string name="toast_select_zip">Please select a ZIP file</string>
+    <string name="toast_zip_error">Error while unzipping file</string>
+    <string name="toast_permission_denied">Permission denied, aborting</string>
 
     <!-- Intents -->
     <string name="intent_intro_to_json_uri">uri</string>
