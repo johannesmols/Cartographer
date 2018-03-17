@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -236,9 +237,9 @@ public class IntroActivity extends AppCompatActivity {
         if (requestCode == 1 && resultCode == RESULT_OK) { // 1 = file chooser for json file
             Uri selectedFile = data.getData(); // The uri with the location of the file
             if (selectedFile != null) {
-                String type = getContentResolver().getType(selectedFile);
-                if (type != null) {
-                    if (type.equals("application/json")) {
+                String extension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.getPath());
+                if (extension != null) {
+                    if (extension.equals("json")) {
                         launchJSONProcessor(selectedFile);
                     } else {
                         Toast.makeText(this, getString(R.string.toast_select_json), Toast.LENGTH_LONG).show();
@@ -248,7 +249,7 @@ public class IntroActivity extends AppCompatActivity {
         } else if (requestCode == 2 && resultCode == RESULT_OK) { // 2 = file chooser for zip file
             Uri selectedFile = data.getData();
             if (selectedFile != null) {
-                String type = getContentResolver().getType(selectedFile);
+                String type = getContentResolver().getType(selectedFile); // mime type map somehow doesn't work with zip files
                 if (type != null) {
                     if (type.equals("application/zip") || type.equals("application/x-zip") || type.equals("x-compress") || type.equals("x-compressed") || type.equals("x-zip-compressed")) {
                         new Unzipper(this).unzip(selectedFile);
