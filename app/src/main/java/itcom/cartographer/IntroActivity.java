@@ -238,8 +238,9 @@ public class IntroActivity extends AppCompatActivity {
             Uri selectedFile = data.getData(); // The uri with the location of the file
             if (selectedFile != null) {
                 String extension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.getPath());
-                if (extension != null) {
-                    if (extension.equals("json")) {
+                String type = getContentResolver().getType(selectedFile);
+                if (extension != null || type != null) {
+                    if ((extension != null && extension.equals("json")) || (type != null && type.equals("application/json"))) {
                         launchJSONProcessor(selectedFile);
                     } else {
                         Toast.makeText(this, getString(R.string.toast_select_json), Toast.LENGTH_LONG).show();
