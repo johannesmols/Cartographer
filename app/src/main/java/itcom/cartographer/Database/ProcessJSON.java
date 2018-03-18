@@ -100,6 +100,7 @@ public class ProcessJSON extends AppCompatActivity {
         private WeakReference<ProcessJSON> activityReference;
 
         private AsyncResponse delegate = null;
+
         public interface AsyncResponse {
             void processFinished(Boolean result);
         }
@@ -163,11 +164,11 @@ public class ProcessJSON extends AppCompatActivity {
                                                     Log.i("timestampMs", currentObject.getTimestampMs());
                                                     break;
                                                 case "latitudeE7":
-                                                    currentObject.setLatitudeE7(jsonReader.nextLong());
+                                                    currentObject.setLatitudeE7((double) jsonReader.nextLong() / 10000000);
                                                     Log.i("latitudeE7", String.valueOf(currentObject.getLatitudeE7()));
                                                     break;
                                                 case "longitudeE7":
-                                                    currentObject.setLongitudeE7(jsonReader.nextLong());
+                                                    currentObject.setLongitudeE7((double) jsonReader.nextLong() / 10000000);
                                                     Log.i("longitudeE7", String.valueOf(currentObject.getLongitudeE7()));
                                                     break;
                                                 case "accuracy":

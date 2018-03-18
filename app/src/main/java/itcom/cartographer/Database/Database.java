@@ -104,8 +104,8 @@ public class Database extends SQLiteOpenHelper {
             for (LocationHistoryObject lhObject : lhObjects) {
                 statement.clearBindings();
                 statement.bindLong(2, Long.parseLong(lhObject.getTimestampMs()));
-                statement.bindLong(3, lhObject.getLatitudeE7());
-                statement.bindLong(4, lhObject.getLongitudeE7());
+                statement.bindDouble(3, lhObject.getLatitudeE7());
+                statement.bindDouble(4, lhObject.getLongitudeE7());
                 statement.bindLong(5, lhObject.getAccuracy());
                 statement.bindLong(6, lhObject.getVelocity());
                 statement.bindLong(7, lhObject.getHeading());
