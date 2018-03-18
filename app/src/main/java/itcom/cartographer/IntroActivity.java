@@ -235,7 +235,7 @@ public class IntroActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) { // 1 = file chooser for json file
-            Uri selectedFile = data.getData(); // The uri with the location of the file
+            Uri selectedFile = data.getData(); // The uri with the location of <></>he file
             if (selectedFile != null) {
                 String extension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.getPath());
                 String type = getContentResolver().getType(selectedFile);
