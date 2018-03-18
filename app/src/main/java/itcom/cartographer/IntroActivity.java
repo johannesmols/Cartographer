@@ -237,15 +237,13 @@ public class IntroActivity extends AppCompatActivity {
         if (requestCode == 1 && resultCode == RESULT_OK) { // 1 = file chooser for json file
             Uri selectedFile = data.getData(); // The uri with the location of <></>he file
             if (selectedFile != null) {
-                String extension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.getPath());
-                String type = getContentResolver().getType(selectedFile);
-                if (extension != null || type != null) {
-                    if ((extension != null && extension.equals("json")) || (type != null && type.equals("application/json"))) {
+                // String extension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.toString());
+                // String type = getContentResolver().getType(selectedFile);
+                // if (extension != null || type != null) {
+                //    if ((extension != null && extension.equals("json")) || (type != null && type.equals("application/json"))) {
                         launchJSONProcessor(selectedFile);
-                    } else {
-                        Toast.makeText(this, getString(R.string.toast_select_json), Toast.LENGTH_LONG).show();
-                    }
-                }
+                //    } else {
+                //        Toast.makeText(this, getString(R.string.toast_select_json), Toast.LENGTH_LONG).show();
             }
         } else if (requestCode == 2 && resultCode == RESULT_OK) { // 2 = file chooser for zip file
             Uri selectedFile = data.getData();
