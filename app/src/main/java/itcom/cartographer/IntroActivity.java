@@ -1,9 +1,11 @@
 package itcom.cartographer;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
@@ -15,11 +17,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.HashMap;
 
 import itcom.cartographer.Database.ProcessJSON;
 import itcom.cartographer.Utils.PreferenceManager;
@@ -251,7 +254,23 @@ public class IntroActivity extends AppCompatActivity {
                 String type = getContentResolver().getType(selectedFile); // mime type map somehow doesn't work with zip files
                 if (type != null) {
                     if (type.equals("application/zip") || type.equals("application/x-zip") || type.equals("x-compress") || type.equals("x-compressed") || type.equals("x-zip-compressed")) {
-                        new Unzipper(this).unzip(selectedFile);
+                        final HashMap<String, Object> params = new HashMap<>();
+                        params.put("context", this);
+                        params.put("file", selectedFile);
+
+                        final ProgressDialog progressDialog = new ProgressDialog(this);
+
+                        Unzip unzip = new Unzip(new Unzip.AsyncResponse() {
+                            @Override
+                            public void processFinish(Boolean output) {
+                                progressDialog.dismiss();
+                            }
+                        });
+                        unzip.execute(params);
+                        if(unzip.getStatus() == AsyncTask.Status.RUNNING) {
+                            progressDialog.setMessage(getResources().getString(R.string.unzip_message));
+                            progressDialog.show();
+                        }
                     } else {
                         Toast.makeText(this, getString(R.string.toast_select_zip), Toast.LENGTH_LONG).show();
                     }
@@ -310,5 +329,41 @@ public class IntroActivity extends AppCompatActivity {
         }
 
 
+    }
+}
+
+class Unzip extends AsyncTask<HashMap<String, Object>, Integer, Boolean> {
+
+    interface AsyncResponse {
+        void processFinish(Boolean output);
+    }
+
+    private Unzip.AsyncResponse delegate = null;
+
+    Unzip(Unzip.AsyncResponse delegate) {
+        this.delegate = delegate;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+    }
+
+    @Override
+    protected Boolean doInBackground(HashMap<String, Object>[] params) {
+        try {
+            Context context = (Context) params[0].get("context");
+            Uri uri = (Uri) params[0].get("file");
+
+            return new Unzipper(context).unzip(uri);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    protected void onPostExecute(Boolean aBoolean) {
+        delegate.processFinish(aBoolean);
     }
 }

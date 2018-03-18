@@ -36,6 +36,9 @@
     <string name="toast_zip_error">Error while unzipping file</string>
     <string name="toast_permission_denied">Permission denied, aborting</string>
 
+    <!-- Dialogs -->
+    <string name="unzip_message">Unzipping…</string>
+
     <!-- Intents -->
     <string name="intent_intro_to_json_uri">uri</string>
 </resources>

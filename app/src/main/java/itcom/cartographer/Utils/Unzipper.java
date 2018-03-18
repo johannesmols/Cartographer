@@ -24,7 +24,7 @@ public class Unzipper {
         this.context = context;
     }
 
-    public void unzip(Uri file) {
+    public boolean unzip(Uri file) {
 
         try {
             String filePath = getPath(context, file);
@@ -45,7 +45,7 @@ public class Unzipper {
                     permissions.askForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Permissions.RequestCodes.WRITE_EXTERNAL_STORAGE);
                     if (!permissions.checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                         Toast.makeText(context, context.getString(R.string.toast_permission_denied), Toast.LENGTH_SHORT).show();
-                        return;
+                        return false;
                     }
                 }
 
@@ -56,10 +56,13 @@ public class Unzipper {
                 zipFile.extractAll(destination);
             } else {
                 Toast.makeText(context, context.getString(R.string.toast_zip_error), Toast.LENGTH_LONG).show();
+                return false;
             }
         } catch (ZipException e) {
             e.printStackTrace();
         }
+
+        return true;
     }
 
     /**
