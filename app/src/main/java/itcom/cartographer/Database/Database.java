@@ -15,6 +15,8 @@ import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import itcom.cartographer.Utils.CoordinateUtils;
 
@@ -125,15 +127,28 @@ public class Database extends SQLiteOpenHelper {
 
     public String getFavouritePlaces() {
         String latestAddress;
-        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " + TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN 1517296083822 AND 1518790784697";
         SQLiteDatabase db = getReadableDatabase();
+        //Get the latest date from db
+        String dateQuery = "SELECT " + LH_TIMESTAMP + " FROM " + TABLE_LOCATION_HISTORY + " LIMIT 2";
+        Cursor dateCursor = db.rawQuery(dateQuery, null);
+        dateCursor.moveToFirst();
+        long latestDate = Long.parseLong(dateCursor.getString(dateCursor.getColumnIndex(LH_TIMESTAMP)));
+
+        // subtract 1 week from the latest date to get a date range
+        long queryEndDate = latestDate - 86400 * 7 * 1000;
+
+        // select all entries that fit in the date range and save them in an array list
+        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " +
+                TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN " + queryEndDate +
+                " AND " + latestDate;
+
         Cursor cursor = db.rawQuery(query, null);
         ArrayList<Point> coordinates = new ArrayList<>();
 
         try {
             while (cursor.moveToNext()) {
-                int lat = cursor.getInt(cursor.getColumnIndex("lh_latitude_e7"));
-                int lon = cursor.getInt(cursor.getColumnIndex("lh_longitude_e7"));
+                int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
+                int lon = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
                 coordinates.add(new Point(lat, lon));
             }
         } finally {
@@ -143,8 +158,9 @@ public class Database extends SQLiteOpenHelper {
         //this is just a test of the getDistanceBetweenTwoPoints method
         System.out.println(CoordinateUtils.getDistanceBetweenTwoPoints(55.6482684, 12.5526691, 55.6481274, 12.5526561));
 
-        LatLng latestLocation = new LatLng(coordinates.get(0).x / 10000000d, coordinates.get(0).y / 10000000d);
-        System.out.println(latestLocation);
+        //get the latest location you were at as a readable address
+        LatLng latestLocation = new LatLng((double) coordinates.get(0).x / 10000000, (double) coordinates.get(0).y / 10000000);
+        
         try {
             GeoApiContext context = new GeoApiContext.Builder()
                     .apiKey("AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE")
@@ -157,7 +173,6 @@ public class Database extends SQLiteOpenHelper {
             System.out.println(e.getMessage());
             latestAddress = "Error";
         }
-
 
         return latestAddress;
     }
