@@ -17,6 +17,8 @@ import com.google.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import itcom.cartographer.Utils.CoordinateUtils;
 
@@ -125,14 +127,14 @@ public class Database extends SQLiteOpenHelper {
         }
     }
 
-    public String getFavouritePlaces() {
-        String latestAddress;
+    public ArrayList<String> getFavouritePlaces() {
         SQLiteDatabase db = getReadableDatabase();
         //Get the latest date from db
         String dateQuery = "SELECT " + LH_TIMESTAMP + " FROM " + TABLE_LOCATION_HISTORY + " LIMIT 2";
         Cursor dateCursor = db.rawQuery(dateQuery, null);
         dateCursor.moveToFirst();
         long latestDate = Long.parseLong(dateCursor.getString(dateCursor.getColumnIndex(LH_TIMESTAMP)));
+        dateCursor.close();
 
         // subtract 1 week from the latest date to get a date range
         long queryEndDate = latestDate - 86400 * 7 * 1000;
@@ -140,7 +142,7 @@ public class Database extends SQLiteOpenHelper {
         // select all entries that fit in the date range and save them in an array list
         String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " +
                 TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN " + queryEndDate +
-                " AND " + latestDate;
+                " AND " + latestDate + " ORDER BY " + LH_LATITUDE_E7;
 
         Cursor cursor = db.rawQuery(query, null);
         ArrayList<Point> coordinates = new ArrayList<>();
@@ -155,25 +157,49 @@ public class Database extends SQLiteOpenHelper {
             cursor.close();
         }
 
-        //this is just a test of the getDistanceBetweenTwoPoints method
-        System.out.println(CoordinateUtils.getDistanceBetweenTwoPoints(55.6482684, 12.5526691, 55.6481274, 12.5526561));
+        ArrayList<ArrayList<Point>> outer = new ArrayList<>();
+        ArrayList<Point> inner = new ArrayList<>();
+        inner.add(coordinates.get(0));
+        outer.add(inner);
 
-        //get the latest location you were at as a readable address
-        LatLng latestLocation = new LatLng((double) coordinates.get(0).x / 10000000, (double) coordinates.get(0).y / 10000000);
-        
-        try {
-            GeoApiContext context = new GeoApiContext.Builder()
-                    .apiKey("AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE")
-                    .build();
-            GeocodingResult[] results = GeocodingApi.reverseGeocode(context, latestLocation).await();
-            System.out.println("results");
-            System.out.println(results[0].formattedAddress);
-            latestAddress = results[0].formattedAddress;
-        } catch (final Exception e) {
-            System.out.println(e.getMessage());
-            latestAddress = "Error";
+        for (int i = 1; i < coordinates.size(); i++) {
+            Point firstItemOfLastArray = outer.get(outer.size() - 1).get(0);
+            if (CoordinateUtils.getDistanceBetweenTwoPoints(firstItemOfLastArray.x, firstItemOfLastArray.y, coordinates.get(i).x, coordinates.get(i).y) < 20) {
+                outer.get(outer.size() - 1).add(coordinates.get(i));
+            } else {
+                outer.add(new ArrayList<Point>());
+                outer.get(outer.size() - 1).add(coordinates.get(i));
+            }
         }
+        ArrayList<Point> finalList = new ArrayList<>();
 
-        return latestAddress;
+        //clear duplicates
+        for (int k = 0; k < outer.size(); k++) {
+            for (int i = 0; i < outer.get(k).size(); i++) {
+                for (int j = i + 1; j < outer.get(k).size(); j++) {
+                    if (outer.get(k).get(i).equals(outer.get(k).get(j))) {
+                        outer.get(k).remove(j);
+                        j--;
+                    }
+                }
+            }
+            finalList.addAll(outer.get(k));
+        }
+        ArrayList<String> favouritePlaces = new ArrayList<>();
+
+        for (Point coordinate : finalList) {
+            //get your favourite locations as a readable address
+            try {
+                GeoApiContext context = new GeoApiContext.Builder()
+                        .apiKey("AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE")
+                        .build();
+                GeocodingResult[] results = GeocodingApi.reverseGeocode(context, new LatLng((double) coordinate.x / 10000000, (double) coordinate
+                        .y / 10000000)).await();
+                favouritePlaces.add(results[0].formattedAddress);
+            } catch (final Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return favouritePlaces;
     }
 }
