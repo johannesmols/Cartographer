@@ -14,6 +14,7 @@ import android.widget.Toast;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
+import es.dmoral.toasty.Toasty;
 import itcom.cartographer.R;
 
 public class Unzipper {
@@ -44,7 +45,7 @@ public class Unzipper {
                 if (!permissions.checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     permissions.askForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Permissions.RequestCodes.WRITE_EXTERNAL_STORAGE);
                     if (!permissions.checkForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        Toast.makeText(context, context.getString(R.string.toast_permission_denied), Toast.LENGTH_SHORT).show();
+                        Toasty.error(context, context.getString(R.string.toast_permission_denied), Toast.LENGTH_SHORT).show();
                         return false;
                     }
                 }
@@ -55,7 +56,7 @@ public class Unzipper {
                 }
                 zipFile.extractAll(destination);
             } else {
-                Toast.makeText(context, context.getString(R.string.toast_zip_error), Toast.LENGTH_LONG).show();
+                Toasty.error(context, context.getString(R.string.toast_zip_error), Toast.LENGTH_LONG).show();
                 return false;
             }
         } catch (ZipException e) {

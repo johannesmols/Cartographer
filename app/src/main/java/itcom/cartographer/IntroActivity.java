@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import java.util.HashMap;
 
+import es.dmoral.toasty.Toasty;
 import itcom.cartographer.Database.ProcessJSON;
 import itcom.cartographer.Utils.PreferenceManager;
 import itcom.cartographer.Utils.Unzipper;
@@ -272,7 +273,7 @@ public class IntroActivity extends AppCompatActivity {
                             progressDialog.show();
                         }
                     } else {
-                        Toast.makeText(this, getString(R.string.toast_select_zip), Toast.LENGTH_LONG).show();
+                        Toasty.warning(this, getString(R.string.toast_select_zip), Toast.LENGTH_LONG).show();
                     }
                 }
             }
