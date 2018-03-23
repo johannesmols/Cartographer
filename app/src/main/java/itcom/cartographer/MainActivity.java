@@ -11,7 +11,9 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import itcom.cartographer.Fragments.TestFragment;
+import itcom.cartographer.Fragments.AboutFragment;
+import itcom.cartographer.Fragments.MainFragment;
+import itcom.cartographer.Fragments.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -72,19 +74,16 @@ public class MainActivity extends AppCompatActivity {
         Class fragmentClass;
         switch(menuItem.getItemId()) {
             case R.id.nav_main_menu:
-                fragmentClass = TestFragment.class;
+                fragmentClass = MainFragment.class;
                 break;
             case R.id.nav_settings:
-                fragmentClass = TestFragment.class;
-                break;
-            case R.id.nav_import_new_file:
-                fragmentClass = TestFragment.class;
+                fragmentClass = SettingsFragment.class;
                 break;
             case R.id.nav_about:
-                fragmentClass = TestFragment.class;
+                fragmentClass = AboutFragment.class;
                 break;
             default:
-                fragmentClass = TestFragment.class;
+                fragmentClass = MainFragment.class;
                 break;
         }
 
