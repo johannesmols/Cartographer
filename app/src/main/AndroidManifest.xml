@@ -14,27 +14,24 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.Intro">
+        android:theme="@style/AppTheme.NoActionBar">
 
         <activity
             android:name=".IntroActivity"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.Main" />
+            android:label="@string/app_name" />
 
         <activity
             android:name=".Database.ProcessJSON"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Intro" />
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

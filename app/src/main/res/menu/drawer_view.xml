@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_main_menu"
+            android:icon="@drawable/ic_map_black_24dp"
+            android:title="@string/nav_drawer_main"
+            android:checked="true" />
+    </group>
+
+    <item android:title="@string/nav_drawer_subgroup_other">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_settings"
+                    android:icon="@drawable/ic_settings_black_24dp"
+                    android:title="@string/nav_drawer_settings" />
+                <item
+                    android:id="@+id/nav_import_new_file"
+                    android:icon="@drawable/ic_file_upload_black_24dp"
+                    android:title="@string/nav_drawer_import_file" />
+                <item
+                    android:id="@+id/nav_about"
+                    android:icon="@drawable/ic_info_outline_black_24dp"
+                    android:title="@string/nav_drawer_about" />
+            </group>
+        </menu>
+    </item>
+</menu>
