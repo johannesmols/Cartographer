@@ -17,10 +17,6 @@
                     android:icon="@drawable/ic_settings_black_24dp"
                     android:title="@string/nav_drawer_settings" />
                 <item
-                    android:id="@+id/nav_import_new_file"
-                    android:icon="@drawable/ic_file_upload_black_24dp"
-                    android:title="@string/nav_drawer_import_file" />
-                <item
                     android:id="@+id/nav_about"
                     android:icon="@drawable/ic_info_outline_black_24dp"
                     android:title="@string/nav_drawer_about" />
