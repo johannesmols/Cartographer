@@ -48,6 +48,12 @@
     <string name="nav_drawer_import_file">Import new file</string>
     <string name="nav_drawer_about">About</string>
 
+    <!-- About Screen -->
+    <string name="about_subtitle">Visualize your location data</string>
+    <string name="about_brief">This app was created in the context of a semester project at Aalborg University Copenhagen, within the study of IT, Communication and New Media</string>
+    <string name="about_github">johannesmols/Cartographer</string>
+    <string name="about_email">cartographer.aau@gmail.com</string>
+
     <!-- Intents -->
     <string name="intent_intro_to_json_uri">uri</string>
 </resources>
