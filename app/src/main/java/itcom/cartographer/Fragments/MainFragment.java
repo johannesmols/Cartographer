@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import es.dmoral.toasty.Toasty;
 import itcom.cartographer.R;
 
 public class MainFragment extends android.support.v4.app.Fragment {
@@ -31,6 +32,7 @@ public class MainFragment extends android.support.v4.app.Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.fragment_main_toolbar_calendar:
+                Toasty.info(getActivity(), "test").show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
