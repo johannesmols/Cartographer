@@ -1,6 +1,8 @@
 package itcom.cartographer.Fragments;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,10 +16,13 @@ import itcom.cartographer.R;
 public class MainFragment extends android.support.v4.app.Fragment {
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
         setHasOptionsMenu(true);
+
+        CardView cardHeatmap = view.findViewById(R.id.card_heatmap);
+        cardHeatmap.setOnClickListener(cardHeatmapClickListener);
 
         return view;
     }
@@ -38,4 +43,11 @@ public class MainFragment extends android.support.v4.app.Fragment {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    View.OnClickListener cardHeatmapClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+        }
+    };
 }

@@ -54,6 +54,9 @@
     <string name="about_github">johannesmols/Cartographer</string>
     <string name="about_email">cartographer.aau@gmail.com</string>
 
+    <!-- Cards -->
+    <string name="card_heatmap_title">Heatmap</string>
+
     <!-- Intents -->
     <string name="intent_intro_to_json_uri">uri</string>
 </resources>

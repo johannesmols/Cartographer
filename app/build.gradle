@@ -9,6 +9,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -31,18 +32,27 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
+    // Support Design Library
     compile 'com.android.support:design:27.1.0'
+    compile 'com.android.support:recyclerview-v7:27.1.0'
 
+    // GSON
     compile 'com.google.code.gson:gson:2.8.2'
+
+    // Wave View Library
     compile 'com.github.john990:WaveView:v0.9'
 
+    // Google Maps Library
     compile 'com.google.maps:google-maps-services:0.2.6'
     compile 'org.slf4j:slf4j-nop:1.7.25'
 
+    // Unzip Library
     // https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j
     compile group: 'net.lingala.zip4j', name: 'zip4j', version: '1.3.2'
 
+    // Toast Library
     compile 'com.github.GrenderG:Toasty:1.2.8'
 
+    // About Screen Library
     compile 'com.github.jrvansuita:MaterialAbout:+'
 }
