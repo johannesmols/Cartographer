@@ -5,7 +5,7 @@
         <item
             android:id="@+id/nav_main_menu"
             android:icon="@drawable/ic_map_black_24dp"
-            android:title="@string/nav_drawer_main"
+            android:title="@string/fragment_main_title"
             android:checked="true" />
     </group>
 
@@ -15,11 +15,11 @@
                 <item
                     android:id="@+id/nav_settings"
                     android:icon="@drawable/ic_settings_black_24dp"
-                    android:title="@string/nav_drawer_settings" />
+                    android:title="@string/fragment_settings_title" />
                 <item
                     android:id="@+id/nav_about"
                     android:icon="@drawable/ic_info_outline_black_24dp"
-                    android:title="@string/nav_drawer_about" />
+                    android:title="@string/fragment_about_title" />
             </group>
         </menu>
     </item>

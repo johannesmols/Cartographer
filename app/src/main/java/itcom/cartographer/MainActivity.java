@@ -41,15 +41,21 @@ public class MainActivity extends AppCompatActivity {
      * Store the current fragment in an enum to reload the fragment when the state changed (e.g. screen rotated)
      */
     private enum Fragments {
-        MAIN(0), SETTINGS(1), ABOUT(2);
+        MAIN(0, R.string.fragment_main_title), SETTINGS(1, R.string.fragment_settings_title), ABOUT(2, R.string.fragment_about_title);
 
         private final int id;
-        Fragments(int id) {
+        private final int title;
+        Fragments(int id, int title) {
             this.id = id;
+            this.title = title;
         }
 
         public int getId() {
             return id;
+        }
+
+        public int getTitle() {
+            return title;
         }
     }
 
@@ -138,12 +144,15 @@ public class MainActivity extends AppCompatActivity {
             switch (restoredFragment) {
                 case MAIN:
                     changeFragment(MainFragment.class);
+                    setTitle(getString(restoredFragment.getTitle()));
                     break;
                 case SETTINGS:
                     changeFragment(SettingsFragment.class);
+                    setTitle(getString(restoredFragment.getTitle()));
                     break;
                 case ABOUT:
                     changeFragment(AboutFragment.class);
+                    setTitle(getString(restoredFragment.getTitle()));
                     break;
                 default:
                     break;
@@ -151,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             changeFragment(MainFragment.class);
         }
+        currentFragment = restoredFragment;
     }
 
     /**
