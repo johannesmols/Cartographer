@@ -1,5 +1,6 @@
 package itcom.cartographer.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
@@ -10,7 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import es.dmoral.toasty.Toasty;
+import itcom.cartographer.HeatmapActivity;
 import itcom.cartographer.R;
 
 public class MainFragment extends android.support.v4.app.Fragment {
@@ -37,7 +38,8 @@ public class MainFragment extends android.support.v4.app.Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.fragment_main_toolbar_calendar:
-                Toasty.info(getActivity(), "test").show();
+                Intent changeActivity = new Intent(getActivity(), HeatmapActivity.class);
+                startActivity(changeActivity);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
