@@ -15,6 +15,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.text.DateFormat;
+import java.util.Date;
+
+import itcom.cartographer.Database.Database;
 import itcom.cartographer.Fragments.AboutFragment;
 import itcom.cartographer.Fragments.MainFragment;
 import itcom.cartographer.Fragments.SettingsFragment;
@@ -144,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
             switch (restoredFragment) {
                 case MAIN:
                     changeFragment(MainFragment.class);
-                    setTitle(getString(restoredFragment.getTitle()));
+                    setTitle(getTitleTimespanForMainFragment());
                     break;
                 case SETTINGS:
                     changeFragment(SettingsFragment.class);
@@ -159,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             changeFragment(MainFragment.class);
+            setTitle(getTitleTimespanForMainFragment());
         }
         currentFragment = restoredFragment;
     }
@@ -171,9 +176,28 @@ public class MainActivity extends AppCompatActivity {
         try {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.flContent, fragment.newInstance()).commit();
+
+            if (fragment == MainFragment.class) {
+                setTitle(getTitleTimespanForMainFragment());
+            }
         } catch (IllegalAccessException | InstantiationException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Create a custom title that shows the currently selected time span of data. This can be changed by clicking on the calender symbol on the toolbar in the main fragment
+     * @return the custom string
+     */
+    private String getTitleTimespanForMainFragment() {
+        Database db = new Database(this, null, null, 1);
+
+        Date firstEntryTime = new Date(db.getFirstChronologicalEntry().getTimestampMs());
+        Date lastEntryTime = new Date(db.getLastChronologicalEntry().getTimestampMs());
+
+        DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(this);
+
+        return dateFormat.format(firstEntryTime) + " - " + dateFormat.format(lastEntryTime);
     }
 
     private ActionBarDrawerToggle setupDrawerToggle() {
@@ -235,7 +259,11 @@ public class MainActivity extends AppCompatActivity {
         // Highlight the selected item has been done by NavigationView
         menuItem.setChecked(true);
         // Set action bar title
-        setTitle(menuItem.getTitle());
+        if (menuItem.getTitle() != getString(R.string.fragment_main_title)) {
+            setTitle(menuItem.getTitle());
+        } else {
+            setTitle(getTitleTimespanForMainFragment());
+        }
         // Close the navigation drawer
         navDrawerLayout.closeDrawers();
     }

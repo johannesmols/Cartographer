@@ -160,8 +160,8 @@ public class ProcessJSON extends AppCompatActivity {
                                             String nextName = jsonReader.nextName();
                                             switch (nextName) {
                                                 case "timestampMs":
-                                                    currentObject.setTimestampMs(jsonReader.nextString());
-                                                    Log.i("timestampMs", currentObject.getTimestampMs());
+                                                    currentObject.setTimestampMs(Long.parseLong(jsonReader.nextString()));
+                                                    Log.i("timestampMs", String.valueOf(currentObject.getTimestampMs()));
                                                     break;
                                                 case "latitudeE7":
                                                     currentObject.setLatitudeE7(jsonReader.nextLong());

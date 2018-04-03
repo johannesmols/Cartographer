@@ -105,7 +105,7 @@ public class Database extends SQLiteOpenHelper {
         try {
             for (LocationHistoryObject lhObject : lhObjects) {
                 statement.clearBindings();
-                statement.bindLong(2, Long.parseLong(lhObject.getTimestampMs()));
+                statement.bindLong(2, lhObject.getTimestampMs());
                 statement.bindLong(3, lhObject.getLatitudeE7());
                 statement.bindLong(4, lhObject.getLongitudeE7());
                 statement.bindLong(5, lhObject.getAccuracy());
@@ -123,6 +123,58 @@ public class Database extends SQLiteOpenHelper {
             db.endTransaction();
             db.close();
         }
+    }
+
+    /**
+     * Get the very first entry of the database, sorted by timestamp
+     * @return the row as an object
+     */
+    public LocationHistoryObject getFirstChronologicalEntry() {
+        return getFirstOrLastChronologicalEntry(true);
+    }
+
+    /**
+     * Get the very last entry of the database, sorted by timestamp
+     * @return the row as an object
+     */
+    public LocationHistoryObject getLastChronologicalEntry() {
+        return getFirstOrLastChronologicalEntry(false);
+    }
+
+    private LocationHistoryObject getFirstOrLastChronologicalEntry(boolean first) {
+        LocationHistoryObject lhObject = new LocationHistoryObject();
+        try {
+            SQLiteDatabase db = getReadableDatabase();
+            String query;
+
+            if (first) {
+                query = "SELECT * FROM " + TABLE_LOCATION_HISTORY + " ORDER BY " + LH_TIMESTAMP + " ASC LIMIT 1";
+            } else {
+                query = "SELECT * FROM " + TABLE_LOCATION_HISTORY + " ORDER BY " + LH_TIMESTAMP + " DESC LIMIT 1";
+            }
+
+            Cursor c = db.rawQuery(query, null);
+            c.moveToFirst();
+
+            while (!c.isAfterLast()) {
+                lhObject.setTimestampMs(c.getLong(c.getColumnIndex(LH_TIMESTAMP)));
+                lhObject.setLatitudeE7(c.getLong(c.getColumnIndex(LH_LATITUDE_E7)));
+                lhObject.setLongitudeE7(c.getLong(c.getColumnIndex(LH_LONGITUDE_E7)));
+                lhObject.setAccuracy(c.getInt(c.getColumnIndex(LH_ACCURACY)));
+                lhObject.setVelocity(c.getInt(c.getColumnIndex(LH_VELOCITY)));
+                lhObject.setHeading(c.getInt(c.getColumnIndex(LH_HEADING)));
+                lhObject.setAltitude(c.getInt(c.getColumnIndex(LH_ALTITUDE)));
+                lhObject.setVerticalAccuracy(c.getInt(c.getColumnIndex(LH_VERTICAL_ACCURACY)));
+
+                c.moveToNext();
+            }
+            c.close();
+            db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lhObject;
     }
 
     public String getFavouritePlaces() {
