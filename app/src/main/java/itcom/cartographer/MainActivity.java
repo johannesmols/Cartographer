@@ -21,6 +21,9 @@ import itcom.cartographer.Fragments.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity {
 
+    // The key to be used in bundles to store the current fragment
+    private final String BUNDLE_KEY_FRAGMENT = "fragment";
+
     private DrawerLayout navDrawerLayout;
     private NavigationView navDrawer;
     private Toolbar toolbar;
@@ -32,14 +35,31 @@ public class MainActivity extends AppCompatActivity {
     // The android.support.v4.app.ActionBarDrawerToggle has been deprecated.
     private ActionBarDrawerToggle drawerToggle;
 
+    private Fragments currentFragment;
+
+    /**
+     * Store the current fragment in an enum to reload the fragment when the state changed (e.g. screen rotated)
+     */
+    private enum Fragments {
+        MAIN(0), SETTINGS(1), ABOUT(2);
+
+        private final int id;
+        Fragments(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Always load the main fragment when the main activity starts
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.flContent, new MainFragment());
-        fragmentTransaction.commit();
+        changeFragment(MainFragment.class);
+        currentFragment = Fragments.MAIN;
 
         setContentView(R.layout.activity_main);
 
@@ -62,6 +82,90 @@ public class MainActivity extends AppCompatActivity {
         return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
+    // `onPostCreate` called when activity start-up is complete after `onStart()`
+    // NOTE 1: Make sure to override the method with only a single `Bundle` argument
+    // Note 2: Make sure you implement the correct `onPostCreate(Bundle savedInstanceState)` method.
+    // There are 2 signatures and only `onPostCreate(Bundle state)` shows the hamburger icon.
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggles
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    /**
+     * Save UI changes to the instance state bundle when killing the process
+     * @param outState the bundle
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        switch (currentFragment) {
+            case MAIN:
+                outState.putSerializable(BUNDLE_KEY_FRAGMENT, Fragments.MAIN);
+                break;
+            case SETTINGS:
+                outState.putSerializable(BUNDLE_KEY_FRAGMENT, Fragments.SETTINGS);
+                break;
+            case ABOUT:
+                outState.putSerializable(BUNDLE_KEY_FRAGMENT, Fragments.ABOUT);
+                break;
+            default:
+                outState.putSerializable(BUNDLE_KEY_FRAGMENT, Fragments.MAIN);
+                break;
+        }
+    }
+
+    /**
+     * Restore UI state from the instance state bundle
+     * This bundle has also been passed to onCreate
+     * @param savedInstanceState the bundle
+     */
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        Fragments restoredFragment = (Fragments) savedInstanceState.getSerializable(BUNDLE_KEY_FRAGMENT);
+        if (restoredFragment != null) {
+            switch (restoredFragment) {
+                case MAIN:
+                    changeFragment(MainFragment.class);
+                    break;
+                case SETTINGS:
+                    changeFragment(SettingsFragment.class);
+                    break;
+                case ABOUT:
+                    changeFragment(AboutFragment.class);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            changeFragment(MainFragment.class);
+        }
+    }
+
+    /**
+     * Change the current fragment in this activity to a new one
+     * @param fragment the class of the fragment to be instantiated
+     */
+    private void changeFragment(Class<? extends Fragment> fragment) {
+        try {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.flContent, fragment.newInstance()).commit();
+        } catch (IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
+        }
+    }
+
     private ActionBarDrawerToggle setupDrawerToggle() {
         // NOTE: Make sure you pass in a valid toolbar reference.  ActionBarDrawToggle() does not require it
         // and will not render the hamburger icon without it.
@@ -70,13 +174,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
-            new NavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                    selectDrawerItem(menuItem);
-                    return true;
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                        selectDrawerItem(menuItem);
+                        return true;
+                    }
                 }
-            }
         );
     }
 
@@ -90,15 +194,19 @@ public class MainActivity extends AppCompatActivity {
                 switch(menuItem.getItemId()) {
                     case R.id.nav_main_menu:
                         fragmentClass = MainFragment.class;
+                        currentFragment = Fragments.MAIN;
                         break;
                     case R.id.nav_settings:
                         fragmentClass = SettingsFragment.class;
+                        currentFragment = Fragments.SETTINGS;
                         break;
                     case R.id.nav_about:
                         fragmentClass = AboutFragment.class;
+                        currentFragment = Fragments.ABOUT;
                         break;
                     default:
                         fragmentClass = MainFragment.class;
+                        currentFragment = Fragments.MAIN;
                         break;
                 }
 
@@ -120,24 +228,6 @@ public class MainActivity extends AppCompatActivity {
         setTitle(menuItem.getTitle());
         // Close the navigation drawer
         navDrawerLayout.closeDrawers();
-    }
-
-    // `onPostCreate` called when activity start-up is complete after `onStart()`
-    // NOTE 1: Make sure to override the method with only a single `Bundle` argument
-    // Note 2: Make sure you implement the correct `onPostCreate(Bundle savedInstanceState)` method.
-    // There are 2 signatures and only `onPostCreate(Bundle state)` shows the hamburger icon.
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        drawerToggle.syncState();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        // Pass any configuration change to the drawer toggles
-        drawerToggle.onConfigurationChanged(newConfig);
     }
 
     DrawerLayout.DrawerListener drawerListener = new DrawerLayout.DrawerListener() {
