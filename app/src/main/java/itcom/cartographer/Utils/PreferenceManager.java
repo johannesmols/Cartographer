@@ -9,7 +9,7 @@ import android.content.SharedPreferences;
 public class PreferenceManager {
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
-    Context _context;
+    Context context;
 
     // shared preferences mode
     int PRIVATE_MODE = 0;
@@ -20,8 +20,8 @@ public class PreferenceManager {
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
 
     public PreferenceManager(Context context) {
-        this._context = context;
-        preferences = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
+        this.context = context;
+        preferences = this.context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = preferences.edit();
     }
 
