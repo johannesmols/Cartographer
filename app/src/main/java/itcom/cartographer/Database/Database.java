@@ -53,7 +53,7 @@ public class Database extends SQLiteOpenHelper {
                 LH_ID + " INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                 LH_TIMESTAMP + " BIGINT NOT NULL, " +
                 LH_LATITUDE_E7 + " BIGINT NOT NULL, " +
-                LH_LONGITUDE_E7 + " BIGINT_NOT NULL, " +
+                LH_LONGITUDE_E7 + " BIGINT NOT NULL, " +
                 LH_ACCURACY + " INTEGER NOT NULL, " +
                 LH_VELOCITY + " INTEGER, " +
                 LH_HEADING + " INTEGER, " +
