@@ -38,8 +38,6 @@ public class MainFragment extends android.support.v4.app.Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.fragment_main_toolbar_calendar:
-                Intent changeActivity = new Intent(getActivity(), HeatmapActivity.class);
-                startActivity(changeActivity);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -49,7 +47,8 @@ public class MainFragment extends android.support.v4.app.Fragment {
     View.OnClickListener cardHeatmapClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
+            Intent changeActivity = new Intent(getActivity(), HeatmapActivity.class);
+            startActivity(changeActivity);
         }
     };
 }
