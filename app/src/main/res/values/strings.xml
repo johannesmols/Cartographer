@@ -46,6 +46,8 @@
 
     <!-- Dialogs -->
     <string name="unzip_message">Unzipping…</string>
+    <string name="date_picker_title_start">Select a starting date</string>
+    <string name="date_picker_title_end">Select an ending date</string>
 
     <!-- Navigation Drawer -->
     <string name="drawer_open">Open navigation drawer</string>

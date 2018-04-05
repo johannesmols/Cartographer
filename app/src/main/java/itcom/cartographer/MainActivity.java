@@ -16,12 +16,12 @@ import android.view.MenuItem;
 import android.view.View;
 
 import java.text.DateFormat;
-import java.util.Date;
+import java.util.Calendar;
 
-import itcom.cartographer.Database.Database;
 import itcom.cartographer.Fragments.AboutFragment;
 import itcom.cartographer.Fragments.MainFragment;
 import itcom.cartographer.Fragments.SettingsFragment;
+import itcom.cartographer.Utils.PreferenceManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -189,15 +189,14 @@ public class MainActivity extends AppCompatActivity {
      * Create a custom title that shows the currently selected time span of data. This can be changed by clicking on the calender symbol on the toolbar in the main fragment
      * @return the custom string
      */
-    private String getTitleTimespanForMainFragment() {
-        Database db = new Database(this, null, null, 1);
+    public String getTitleTimespanForMainFragment() {
+        PreferenceManager prefs = new PreferenceManager(this);
+        Calendar startDate = prefs.getDateRangeStart();
+        Calendar endDate = prefs.getDateRangeEnd();
 
-        Date firstEntryTime = new Date(db.getFirstChronologicalEntry().getTimestampMs());
-        Date lastEntryTime = new Date(db.getLastChronologicalEntry().getTimestampMs());
+        DateFormat format = android.text.format.DateFormat.getDateFormat(this);
 
-        DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(this);
-
-        return dateFormat.format(firstEntryTime) + " - " + dateFormat.format(lastEntryTime);
+        return format.format(startDate.getTime()) + " - " + format.format(endDate.getTime());
     }
 
     private ActionBarDrawerToggle setupDrawerToggle() {
