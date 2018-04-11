@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import itcom.cartographer.MainActivity;
@@ -63,6 +64,7 @@ public class ProcessJSON extends AppCompatActivity {
             @Override
             public void processFinished(Boolean result) {
                 if (result) {
+                    setInitialStartAndEndDate();
                     launchMainActivity();
                 } else {
                     Log.e("Error", "Error parsing file");
@@ -79,6 +81,26 @@ public class ProcessJSON extends AppCompatActivity {
         new PreferenceManager(this).setFirstTimeLaunch(false);
         startActivity(new Intent(this, MainActivity.class));
         finish();
+    }
+
+    /**
+     * Set the initial time range that the application will show data for to the first and last entry in the database
+     */
+    private void setInitialStartAndEndDate() {
+        PreferenceManager prefs = new PreferenceManager(this);
+        Database db = new Database(this, null, null, 1);
+
+        LocationHistoryObject first = db.getFirstChronologicalEntry();
+        LocationHistoryObject last = db.getLastChronologicalEntry();
+
+        Calendar startDate = Calendar.getInstance();
+        startDate.setTimeInMillis(first.getTimestampMs());
+
+        Calendar endDate = Calendar.getInstance();
+        endDate.setTimeInMillis(last.getTimestampMs());
+
+        prefs.setDateRangeStart(startDate);
+        prefs.setDateRangeEnd(endDate);
     }
 
     /**
@@ -160,8 +182,8 @@ public class ProcessJSON extends AppCompatActivity {
                                             String nextName = jsonReader.nextName();
                                             switch (nextName) {
                                                 case "timestampMs":
-                                                    currentObject.setTimestampMs(jsonReader.nextString());
-                                                    Log.i("timestampMs", currentObject.getTimestampMs());
+                                                    currentObject.setTimestampMs(Long.parseLong(jsonReader.nextString()));
+                                                    Log.i("timestampMs", String.valueOf(currentObject.getTimestampMs()));
                                                     break;
                                                 case "latitudeE7":
                                                     currentObject.setLatitudeE7(jsonReader.nextLong());

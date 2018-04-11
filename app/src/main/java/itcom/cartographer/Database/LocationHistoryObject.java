@@ -2,7 +2,7 @@ package itcom.cartographer.Database;
 
 public class LocationHistoryObject {
 
-    private String timestampMs;
+    private long timestampMs;
     private long latitudeE7;
     private long longitudeE7;
     private int accuracy;
@@ -11,7 +11,7 @@ public class LocationHistoryObject {
     private int altitude;
     private int verticalAccuracy;
 
-    public LocationHistoryObject(String timestampMs, long latitudeE7, long longitudeE7, int accuracy, int velocity, int heading, int altitude, int verticalAccuracy) {
+    public LocationHistoryObject(long timestampMs, long latitudeE7, long longitudeE7, int accuracy, int velocity, int heading, int altitude, int verticalAccuracy) {
         this.timestampMs = timestampMs;
         this.latitudeE7 = latitudeE7;
         this.longitudeE7 = longitudeE7;
@@ -25,11 +25,11 @@ public class LocationHistoryObject {
     public LocationHistoryObject() {
     }
 
-    public String getTimestampMs() {
+    public long getTimestampMs() {
         return timestampMs;
     }
 
-    public void setTimestampMs(String timestampMs) {
+    public void setTimestampMs(long timestampMs) {
         this.timestampMs = timestampMs;
     }
 

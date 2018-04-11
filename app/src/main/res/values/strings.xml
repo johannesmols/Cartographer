@@ -30,6 +30,14 @@
     <string name="json_processor_descr">This might take a few minutes.</string>
     <string name="json_processor_progress_text">%1$d kB of %2$d kB</string>
 
+    <!-- Fragment titles -->
+    <string name="fragment_main_title">Main menu</string>
+    <string name="fragment_settings_title">Settings</string>
+    <string name="fragment_about_title">About</string>
+
+    <!-- Activity titles -->
+    <string name="title_activity_heatmap">Map</string>
+
     <!-- Toasts -->
     <string name="toast_select_json">Please select a JSON file</string>
     <string name="toast_select_zip">Please select a ZIP file</string>
@@ -38,6 +46,25 @@
 
     <!-- Dialogs -->
     <string name="unzip_message">Unzipping…</string>
+    <string name="date_picker_title_start">Select a starting date</string>
+    <string name="date_picker_title_end">Select an ending date</string>
+
+    <!-- Navigation Drawer -->
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="nav_drawer_subgroup_other">Other</string>
+    <string name="nav_drawer_import_file">Import new file</string>
+
+    <!-- About Screen -->
+    <string name="about_subtitle">Visualize your location data</string>
+    <string name="about_brief">This app was created in the context of a semester project at Aalborg University Copenhagen, within the study of IT, Communication and New Media</string>
+    <string name="about_github">johannesmols/Cartographer</string>
+    <string name="about_email">cartographer.aau@gmail.com</string>
+
+    <!-- Cards -->
+    <string name="card_heatmap_title">Heatmap</string>
+    <string name="card_second_title">Second</string>
+    <string name="card_third_title">Third</string>
 
     <!-- Intents -->
     <string name="intent_intro_to_json_uri">uri</string>
