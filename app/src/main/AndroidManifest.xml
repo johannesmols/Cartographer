@@ -46,10 +46,13 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value="AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE" />
 
         <activity
             android:name=".HeatmapActivity"
+            android:label="@string/title_activity_heatmap"></activity>
+        <activity
+            android:name=".FavPlacesActivity"
             android:label="@string/title_activity_heatmap"></activity>
     </application>
 

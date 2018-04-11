@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -96,8 +97,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
-        TextView latestAddress = findViewById(R.id.latest_address);
-        latestAddress.setText(db.getFavouritePlaces().toString());
     }
 
     // `onPostCreate` called when activity start-up is complete after `onStart()`

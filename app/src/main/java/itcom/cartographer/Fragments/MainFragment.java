@@ -17,6 +17,7 @@ import android.widget.DatePicker;
 import java.util.Calendar;
 
 import itcom.cartographer.HeatmapActivity;
+import itcom.cartographer.FavPlacesActivity;
 import itcom.cartographer.MainActivity;
 import itcom.cartographer.R;
 import itcom.cartographer.Utils.PreferenceManager;
@@ -41,6 +42,8 @@ public class MainFragment extends android.support.v4.app.Fragment {
 
         CardView cardHeatmap = view.findViewById(R.id.card_heatmap);
         cardHeatmap.setOnClickListener(cardHeatmapClickListener);
+        CardView cardFavPlaces = view.findViewById(R.id.card_fav_places);
+        cardFavPlaces.setOnClickListener(cardFavPlacesClickListener);
 
         return view;
     }
@@ -69,6 +72,14 @@ public class MainFragment extends android.support.v4.app.Fragment {
         @Override
         public void onClick(View v) {
             Intent changeActivity = new Intent(getActivity(), HeatmapActivity.class);
+            startActivity(changeActivity);
+        }
+    };
+
+    View.OnClickListener cardFavPlacesClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent changeActivity = new Intent(getActivity(), FavPlacesActivity.class);
             startActivity(changeActivity);
         }
     };

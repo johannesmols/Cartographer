@@ -127,7 +127,6 @@ public class Database extends SQLiteOpenHelper {
         }
     }
 
-    public ArrayList<String> getFavouritePlaces() {
     /**
      * Get the very first entry of the database, sorted by timestamp
      * @return the row as an object
@@ -144,7 +143,7 @@ public class Database extends SQLiteOpenHelper {
         return getFirstOrLastChronologicalEntry(false);
     }
 
-    private LocationHistoryObject getFirstOrLastChronologicalEntry(boolean first) {
+    public LocationHistoryObject getFirstOrLastChronologicalEntry(boolean first) {
         LocationHistoryObject lhObject = new LocationHistoryObject();
         try {
             SQLiteDatabase db = getReadableDatabase();
@@ -180,7 +179,7 @@ public class Database extends SQLiteOpenHelper {
         return lhObject;
     }
 
-    public String getFavouritePlaces() {
+    public ArrayList<String> getFavouritePlaces() {
         String latestAddress;
         SQLiteDatabase db = getReadableDatabase();
         //Get the latest date from db
