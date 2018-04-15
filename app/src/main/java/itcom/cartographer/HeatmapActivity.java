@@ -1,7 +1,9 @@
 package itcom.cartographer;
 
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -11,6 +13,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import java.util.List;
@@ -51,13 +54,34 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         LatLng copenhagen = new LatLng(55.650498, 12.555349);
         mMap.addMarker(new MarkerOptions().position(copenhagen).title("Home"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(copenhagen));
+        addHeatMap();
     }
     private void addHeatMap(){
-        List<LatLng> latLngList = db.getLatLng();
+        List<LatLng> latLngList = null;
+
+        try {
+            latLngList = db.getLatLng();
+        } catch (Exception e) {
+            Toast.makeText(this, "Problem reading list of locations.", Toast.LENGTH_LONG).show();
+        }
+
+        // Create the gradient.
+        int[] colors = {
+                Color.rgb(102, 225, 0), // green
+                Color.rgb(255, 0, 0)    // red
+        };
+
+        float[] startPoints = {
+                0.2f, 1f
+        };
+        Gradient gradient = new Gradient(colors, startPoints);
+
         // Create a heat map tile provider
         if(mProvider == null){
             mProvider = new HeatmapTileProvider.Builder()
                     .data(latLngList)
+                    .gradient(gradient)
+                    .opacity(1)
                     .build();
 
             // Add a tile overlay to the map, using the heat map tile provider.
