@@ -242,7 +242,6 @@ public class IntroActivity extends AppCompatActivity {
         if (requestCode == 1 && resultCode == RESULT_OK) { // 1 = file chooser for json file
             Uri selectedFile = data.getData(); // The uri with the location of <></>he file
             if (selectedFile != null) {
-/* This is because the file type validation wasn't working for Ricardo. Everyone please test if this was an error on his side or if the code is actually not working. */
                 String extension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.toString());
                 String type = getContentResolver().getType(selectedFile);
                 if (extension != null || type != null) {
