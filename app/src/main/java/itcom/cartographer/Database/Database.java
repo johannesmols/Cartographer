@@ -15,8 +15,6 @@ import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 import itcom.cartographer.Utils.CoordinateUtils;
 
@@ -58,8 +56,8 @@ public class Database extends SQLiteOpenHelper {
                 LH_VELOCITY + " INTEGER, " +
                 LH_HEADING + " INTEGER, " +
                 LH_ALTITUDE + " INTEGER, " +
-                LH_VERTICAL_ACCURACY + " INTEGER" +
-                ");";
+                LH_VERTICAL_ACCURACY + " INTEGER" + "" +
+                ");" + "";
         sqLiteDatabase.execSQL(query);
 
         query = "CREATE TABLE " + TABLE_ACTIVITIES + "(" +
@@ -175,6 +173,30 @@ public class Database extends SQLiteOpenHelper {
         }
 
         return lhObject;
+    }
+
+    /**
+     * Get the latitude and the longitude form the database
+     * @return the list.
+     */
+
+    public ArrayList<com.google.android.gms.maps.model.LatLng> getLatLng(){
+        //Creates the list for the latitude and the longitude
+        ArrayList<com.google.android.gms.maps.model.LatLng> list = new ArrayList<>();
+        //get the database to read only
+        SQLiteDatabase db = getReadableDatabase();
+        //selects the latitude and the longitude from the table in the satabase and add them to the list
+        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " + TABLE_LOCATION_HISTORY;
+        Cursor cursor = db.rawQuery(query, null);
+        if((cursor != null && cursor.getCount() > 0)){
+            cursor.moveToFirst();
+            do{
+                double lat = cursor.getDouble(cursor.getColumnIndex(LH_LATITUDE_E7)/10000000);
+                double lng = cursor.getDouble(cursor.getColumnIndex(LH_LONGITUDE_E7)/10000000);
+                list.add(new com.google.android.gms.maps.model.LatLng(lat, lng));
+            }while(cursor.moveToNext());
+        }
+        return list;
     }
 
     public String getFavouritePlaces() {

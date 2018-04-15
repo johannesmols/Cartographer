@@ -243,17 +243,17 @@ public class IntroActivity extends AppCompatActivity {
             Uri selectedFile = data.getData(); // The uri with the location of <></>he file
             if (selectedFile != null) {
 /* This is because the file type validation wasn't working for Ricardo. Everyone please test if this was an error on his side or if the code is actually not working. */
-//                String extension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.toString());
-//                String type = getContentResolver().getType(selectedFile);
-//                if (extension != null || type != null) {
-//                    if ((extension != null && extension.equals("json")) || (type != null && type.equals("application/json"))) {
+                String extension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.toString());
+                String type = getContentResolver().getType(selectedFile);
+                if (extension != null || type != null) {
+                    if ((extension != null && extension.equals("json")) || (type != null && type.equals("application/json"))) {
                         launchJSONProcessor(selectedFile);
-//                    } else {
-//                        Toasty.error(this, getString(R.string.toast_select_json), Toast.LENGTH_LONG).show();
-//                    }
-//                } else {
-//                    Toasty.error(this, getString(R.string.toast_select_json), Toast.LENGTH_LONG).show();
-//                }
+                    } else {
+                        Toasty.error(this, getString(R.string.toast_select_json), Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toasty.error(this, getString(R.string.toast_select_json), Toast.LENGTH_LONG).show();
+                }
             }
         } else if (requestCode == 2 && resultCode == RESULT_OK) { // 2 = file chooser for zip file
             Uri selectedFile = data.getData();

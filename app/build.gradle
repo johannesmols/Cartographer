@@ -46,6 +46,8 @@ dependencies {
     // Google Maps Library
     compile 'com.google.maps:google-maps-services:0.2.6'
     compile 'org.slf4j:slf4j-nop:1.7.25'
+    compile 'com.google.maps.android:android-maps-utils:0.4+'
+
 
     // Unzip Library
     // https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j
