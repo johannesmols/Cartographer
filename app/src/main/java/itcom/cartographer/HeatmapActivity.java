@@ -1,9 +1,7 @@
 package itcom.cartographer;
 
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,12 +13,7 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
-import org.json.JSONException;
-
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import itcom.cartographer.Database.Database;
 
@@ -29,6 +22,7 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
     private GoogleMap mMap;
     private HeatmapTileProvider mProvider;
     private TileOverlay mOverlay;
+    private Database db = new Database(this, null, null, 1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,15 +48,11 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        // Add a marker in Sydney and move the camera
         LatLng copenhagen = new LatLng(55.650498, 12.555349);
         mMap.addMarker(new MarkerOptions().position(copenhagen).title("Home"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(copenhagen));
-        addHeatMap();
-
     }
     private void addHeatMap(){
-        Database db = new Database(this, null, null, 1);
         List<LatLng> latLngList = db.getLatLng();
         // Create a heat map tile provider
         if(mProvider == null){
@@ -76,7 +66,5 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
             mProvider.setData(latLngList);
             mOverlay.clearTileCache();
         }
-
-
     }
 }

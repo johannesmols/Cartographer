@@ -191,11 +191,13 @@ public class Database extends SQLiteOpenHelper {
         if((cursor != null && cursor.getCount() > 0)){
             cursor.moveToFirst();
             do{
-                double lat = cursor.getDouble(cursor.getColumnIndex(LH_LATITUDE_E7)/10000000);
-                double lng = cursor.getDouble(cursor.getColumnIndex(LH_LONGITUDE_E7)/10000000);
+                double lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7)/10000000);
+                double lng = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7)/10000000);
                 list.add(new com.google.android.gms.maps.model.LatLng(lat, lng));
-            }while(cursor.moveToNext());
-        }
+                cursor.moveToNext();
+            }while(!cursor.isAfterLast());
+        }cursor.close();
+
         return list;
     }
 
