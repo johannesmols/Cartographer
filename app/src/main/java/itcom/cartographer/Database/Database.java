@@ -11,8 +11,12 @@ import android.util.Log;
 
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
+import com.google.maps.PendingResult;
+import com.google.maps.PlacesApi;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
+import com.google.maps.model.PlacesSearchResponse;
+import com.google.maps.model.PlacesSearchResult;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -129,6 +133,7 @@ public class Database extends SQLiteOpenHelper {
 
     /**
      * Get the very first entry of the database, sorted by timestamp
+     *
      * @return the row as an object
      */
     public LocationHistoryObject getFirstChronologicalEntry() {
@@ -137,6 +142,7 @@ public class Database extends SQLiteOpenHelper {
 
     /**
      * Get the very last entry of the database, sorted by timestamp
+     *
      * @return the row as an object
      */
     public LocationHistoryObject getLastChronologicalEntry() {
@@ -179,7 +185,7 @@ public class Database extends SQLiteOpenHelper {
         return lhObject;
     }
 
-    public ArrayList<String> getFavouritePlaces() {
+    public ArrayList<PlacesSearchResponse> getFavouritePlaces() {
         String latestAddress;
         SQLiteDatabase db = getReadableDatabase();
         //Get the latest date from db
@@ -238,21 +244,53 @@ public class Database extends SQLiteOpenHelper {
             }
             finalList.addAll(outer.get(k));
         }
-        ArrayList<String> favouritePlaces = new ArrayList<>();
-
+//        ArrayList<String> favouritePlaces = new ArrayList<>();
+//
+//        String CREATE_BOOK_TABLE = "CREATE TABLE books ( " +
+//                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+//                "title TEXT, " +
+//                "author TEXT, " +
+//                "sales INTEGER )";
+//
+//        // create books table
+//        db.execSQL(CREATE_BOOK_TABLE);
+//        GeocodingResult[] results = null;
+//        for (Point coordinate : finalList) {
+//            //get your favourite locations as a readable address
+//            try {
+//                GeoApiContext context = new GeoApiContext.Builder()
+//                        .apiKey("AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE")
+//                        .build();
+//                results = GeocodingApi.reverseGeocode(context, new LatLng(
+//                        (double) coordinate.x / 10000000, (double) coordinate
+//                        .y / 10000000)).await();
+//                System.out.println(results[0].formattedAddress);
+//                favouritePlaces.add(results[0].formattedAddress);
+//            } catch (final Exception e) {
+//                System.out.println(e.getMessage());
+//            }
+//        }
+        ArrayList<PlacesSearchResponse> results = new ArrayList<>();
+        System.out.println(finalList.get(0));
         for (Point coordinate : finalList) {
-            //get your favourite locations as a readable address
             try {
                 GeoApiContext context = new GeoApiContext.Builder()
                         .apiKey("AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE")
                         .build();
-                GeocodingResult[] results = GeocodingApi.reverseGeocode(context, new LatLng((double) coordinate.x / 10000000, (double) coordinate
-                        .y / 10000000)).await();
-                favouritePlaces.add(results[0].formattedAddress);
+
+                PlacesSearchResponse result = PlacesApi.nearbySearchQuery(context, new LatLng(
+                        (double) coordinate.x / 10000000, (double) coordinate
+                        .y / 10000000)).radius(1000).keyword("a").await();
+
+                System.out.println(result);
+
+                results.add(result);
+
             } catch (final Exception e) {
-                System.out.println(e.getMessage());
+                System.out.println(e);
             }
         }
-        return favouritePlaces;
+
+        return results;
     }
 }

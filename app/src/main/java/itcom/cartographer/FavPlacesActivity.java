@@ -2,17 +2,26 @@ package itcom.cartographer;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.model.GeocodingResult;
+import com.google.maps.model.PlacesSearchResponse;
+
+import java.util.ArrayList;
+
+import itcom.cartographer.Database.Database;
 
 public class FavPlacesActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    ArrayList<PlacesSearchResponse> results;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +31,10 @@ public class FavPlacesActivity extends FragmentActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        Database db = new Database(this, null, null, 1);
+        results = db.getFavouritePlaces();
+
+        System.out.println(results);
     }
 
 
@@ -38,9 +51,26 @@ public class FavPlacesActivity extends FragmentActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        for (PlacesSearchResponse result : results) {
+            //get your favourite locations as a readable address
+            LatLng position = new LatLng(result.results[0].geometry
+                    .location.lat, result.results[0].geometry
+                    .location.lng);
+            mMap.addMarker(new MarkerOptions().position(position)).setTitle(result.results[0].name);
+        }
+
+
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng cph = new LatLng(55.679, 12.572);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(cph, 12));
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+
+                System.out.println(marker.getTitle());
+            }
+        });
     }
+
 }
