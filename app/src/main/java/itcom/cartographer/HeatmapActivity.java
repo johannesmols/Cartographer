@@ -20,6 +20,7 @@ import java.util.List;
 import itcom.cartographer.Database.Database;
 
 //DEMO: https://github.com/googlemaps/android-maps-utils/blob/master/demo/src/com/google/maps/android/utils/demo/HeatmapsDemoActivity.java
+//COLORS: https://convertingcolors.com/
 
 public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -64,10 +65,10 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         // Create the gradient.
         int[] colors = {
                 Color.argb(0, 0, 255, 255),// transparent
-                Color.argb(255 / 3 * 2, 0, 255, 255),
-                Color.rgb(0, 191, 255),
-                Color.rgb(0, 0, 127),
-                Color.rgb(255, 0, 0)
+                Color.argb(255 / 3 * 2, 0, 255, 255), //soft blue
+                Color.rgb(0, 191, 255), //sky blue
+                Color.rgb(0, 0, 127), //deep blue
+                Color.rgb(255, 0, 0) //red
         };
 
         float[] startPoints = {
