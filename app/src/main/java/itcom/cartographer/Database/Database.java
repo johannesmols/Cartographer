@@ -176,17 +176,19 @@ public class Database extends SQLiteOpenHelper {
     }
 
     /**
-     * Get the latitude and the longitude form the database
+     * Get the latitude and the longitude form the database and transforms it into LatLng format for google maps
+     * CAUTION!! this LatLng is NOT the same used for other purposes, this is coming from the google maps library.
      * @return the list.
      */
 
     public ArrayList<com.google.android.gms.maps.model.LatLng> getLatLng(){
         //get the database to read only
         SQLiteDatabase db = getReadableDatabase();
-        //selects the latitude and the longitude from the table in the database and add them to the list
+        //selects the latitude and the longitude from the table in the database and add them to the "query"
         String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " + TABLE_LOCATION_HISTORY;
+        //the cursor is used to iterate through the query
         Cursor cursor = db.rawQuery(query, null);
-        //Creates the list for the latitude and the longitude
+        //Creates the list for the latitude and the longitude where to put the values from the "query"
         ArrayList<com.google.android.gms.maps.model.LatLng> list = new ArrayList<>();
         if((cursor != null && cursor.getCount() > 0)){
             cursor.moveToFirst();
@@ -194,7 +196,8 @@ public class Database extends SQLiteOpenHelper {
                 do{
                     int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
                     int lng = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
-                    list.add(new com.google.android.gms.maps.model.LatLng((double)lat/10000000,(double) lng/10000000));
+                    //Since the values in the database are coming "raw", they must be divided by 1E7 (10^7)
+                    list.add(new com.google.android.gms.maps.model.LatLng((double)lat/1E7,(double) lng/1E7));
                     cursor.moveToNext();
                 }while(!cursor.isAfterLast());
             }finally {

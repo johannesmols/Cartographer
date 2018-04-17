@@ -21,6 +21,12 @@ import itcom.cartographer.Database.Database;
 //DEMO: https://github.com/googlemaps/android-maps-utils/blob/master/demo/src/com/google/maps/android/utils/demo/HeatmapsDemoActivity.java
 //COLORS: https://convertingcolors.com/
 
+/**
+ * This class is used to instantiate the map and set a Heat Map on top of it.
+ *
+ * The Heat Map uses the Google Maps Android API (no limit) solely.
+ */
+
 public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -40,6 +46,8 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         //and the list must be populated at this point, otherwise it will throw a NullPointException.
         Database db = new Database(this, null, null, 1);
         latLngList = db.getLatLng();
+        //**Remember to close the database when it's no longer needed
+        db.close();
     }
 
 
