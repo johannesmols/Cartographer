@@ -61,8 +61,6 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
      *
      * Please be sure you are using a device which can use google play services.
      */
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -72,6 +70,7 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         //add the heat map Tile Overlay on top of the map
         addHeatMap();
     }
+
     private void addHeatMap(){
         // Create the gradient.
         int[] colors = {

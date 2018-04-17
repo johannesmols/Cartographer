@@ -139,6 +139,11 @@ public class Database extends SQLiteOpenHelper {
         return getFirstOrLastChronologicalEntry(false);
     }
 
+    /**
+     * Get the first or last object in the database, sorted by date
+     * @param first determines if the first or last entry should be returned
+     * @return the object
+     */
     private LocationHistoryObject getFirstOrLastChronologicalEntry(boolean first) {
         LocationHistoryObject lhObject = new LocationHistoryObject();
         try {
@@ -180,7 +185,6 @@ public class Database extends SQLiteOpenHelper {
      * CAUTION!! this LatLng is NOT the same used for other purposes, this is coming from the google maps library.
      * @return the list.
      */
-
     public ArrayList<com.google.android.gms.maps.model.LatLng> getLatLng(){
         //get the database to read only
         SQLiteDatabase db = getReadableDatabase();
