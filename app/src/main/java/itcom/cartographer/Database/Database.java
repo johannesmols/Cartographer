@@ -181,23 +181,26 @@ public class Database extends SQLiteOpenHelper {
      */
 
     public ArrayList<com.google.android.gms.maps.model.LatLng> getLatLng(){
-        //Creates the list for the latitude and the longitude
-        ArrayList<com.google.android.gms.maps.model.LatLng> list = new ArrayList<>();
         //get the database to read only
         SQLiteDatabase db = getReadableDatabase();
-        //selects the latitude and the longitude from the table in the satabase and add them to the list
+        //selects the latitude and the longitude from the table in the database and add them to the list
         String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " + TABLE_LOCATION_HISTORY;
         Cursor cursor = db.rawQuery(query, null);
+        //Creates the list for the latitude and the longitude
+        ArrayList<com.google.android.gms.maps.model.LatLng> list = new ArrayList<>();
         if((cursor != null && cursor.getCount() > 0)){
             cursor.moveToFirst();
-            do{
-                double lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7)/10000000);
-                double lng = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7)/10000000);
-                list.add(new com.google.android.gms.maps.model.LatLng(lat, lng));
-                cursor.moveToNext();
-            }while(!cursor.isAfterLast());
-        }cursor.close();
-
+            try{
+                do{
+                    int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
+                    int lng = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
+                    list.add(new com.google.android.gms.maps.model.LatLng((double)lat/10000000,(double) lng/10000000));
+                    cursor.moveToNext();
+                }while(!cursor.isAfterLast());
+            }finally {
+                cursor.close();
+            }
+        }
         return list;
     }
 

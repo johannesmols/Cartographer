@@ -3,7 +3,6 @@ package itcom.cartographer;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -20,12 +19,14 @@ import java.util.List;
 
 import itcom.cartographer.Database.Database;
 
+//DEMO: https://github.com/googlemaps/android-maps-utils/blob/master/demo/src/com/google/maps/android/utils/demo/HeatmapsDemoActivity.java
+
 public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private HeatmapTileProvider mProvider;
     private TileOverlay mOverlay;
-    private Database db = new Database(this, null, null, 1);
+    private List<LatLng> latLngList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,10 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        //For resource reasons, the database should be created here, before the callback onMapReady,
+        //and the list must be populated at this point, otherwise it will throw a NullPointException.
+        Database db = new Database(this, null, null, 1);
+        latLngList = db.getLatLng();
     }
 
 
@@ -52,27 +57,21 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         LatLng copenhagen = new LatLng(55.650498, 12.555349);
-        mMap.addMarker(new MarkerOptions().position(copenhagen).title("Home"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(copenhagen));
         addHeatMap();
     }
     private void addHeatMap(){
-        List<LatLng> latLngList = null;
-
-        try {
-            latLngList = db.getLatLng();
-        } catch (Exception e) {
-            Toast.makeText(this, "Problem reading list of locations.", Toast.LENGTH_LONG).show();
-        }
-
         // Create the gradient.
         int[] colors = {
-                Color.rgb(102, 225, 0), // green
-                Color.rgb(255, 0, 0)    // red
+                Color.argb(0, 0, 255, 255),// transparent
+                Color.argb(255 / 3 * 2, 0, 255, 255),
+                Color.rgb(0, 191, 255),
+                Color.rgb(0, 0, 127),
+                Color.rgb(255, 0, 0)
         };
 
         float[] startPoints = {
-                0.2f, 1f
+                0.0f, 0.10f, 0.20f, 0.60f, 1.0f
         };
         Gradient gradient = new Gradient(colors, startPoints);
 
@@ -80,15 +79,15 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         if(mProvider == null){
             mProvider = new HeatmapTileProvider.Builder()
                     .data(latLngList)
+                    .radius(50)
                     .gradient(gradient)
-                    .opacity(1)
                     .build();
-
             // Add a tile overlay to the map, using the heat map tile provider.
             mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
         }else{
             mProvider.setData(latLngList);
             mOverlay.clearTileCache();
         }
+
     }
 }
