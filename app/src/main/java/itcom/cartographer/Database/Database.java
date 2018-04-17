@@ -15,8 +15,6 @@ import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 import itcom.cartographer.Utils.CoordinateUtils;
 
@@ -58,8 +56,8 @@ public class Database extends SQLiteOpenHelper {
                 LH_VELOCITY + " INTEGER, " +
                 LH_HEADING + " INTEGER, " +
                 LH_ALTITUDE + " INTEGER, " +
-                LH_VERTICAL_ACCURACY + " INTEGER" +
-                ");";
+                LH_VERTICAL_ACCURACY + " INTEGER" + "" +
+                ");" + "";
         sqLiteDatabase.execSQL(query);
 
         query = "CREATE TABLE " + TABLE_ACTIVITIES + "(" +
@@ -141,6 +139,11 @@ public class Database extends SQLiteOpenHelper {
         return getFirstOrLastChronologicalEntry(false);
     }
 
+    /**
+     * Get the first or last object in the database, sorted by date
+     * @param first determines if the first or last entry should be returned
+     * @return the object
+     */
     private LocationHistoryObject getFirstOrLastChronologicalEntry(boolean first) {
         LocationHistoryObject lhObject = new LocationHistoryObject();
         try {
@@ -175,6 +178,37 @@ public class Database extends SQLiteOpenHelper {
         }
 
         return lhObject;
+    }
+
+    /**
+     * Get the latitude and the longitude form the database and transforms it into LatLng format for google maps
+     * CAUTION!! this LatLng is NOT the same used for other purposes, this is coming from the google maps library.
+     * @return the list.
+     */
+    public ArrayList<com.google.android.gms.maps.model.LatLng> getLatLng(){
+        //get the database to read only
+        SQLiteDatabase db = getReadableDatabase();
+        //selects the latitude and the longitude from the table in the database and add them to the "query"
+        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " + TABLE_LOCATION_HISTORY;
+        //the cursor is used to iterate through the query
+        Cursor cursor = db.rawQuery(query, null);
+        //Creates the list for the latitude and the longitude where to put the values from the "query"
+        ArrayList<com.google.android.gms.maps.model.LatLng> list = new ArrayList<>();
+        if((cursor != null && cursor.getCount() > 0)){
+            cursor.moveToFirst();
+            try{
+                do{
+                    int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
+                    int lng = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
+                    //Since the values in the database are coming "raw", they must be divided by 1E7 (10^7)
+                    list.add(new com.google.android.gms.maps.model.LatLng((double)lat/1E7,(double) lng/1E7));
+                    cursor.moveToNext();
+                }while(!cursor.isAfterLast());
+            }finally {
+                cursor.close();
+            }
+        }
+        return list;
     }
 
     public String getFavouritePlaces() {

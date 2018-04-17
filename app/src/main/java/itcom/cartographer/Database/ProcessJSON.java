@@ -258,6 +258,7 @@ public class ProcessJSON extends AppCompatActivity {
                 jsonReader.close();
 
                 Log.i("Entry count", String.valueOf(database.getDatapointCount()));
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
