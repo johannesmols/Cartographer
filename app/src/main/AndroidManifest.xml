@@ -46,7 +46,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDFsjB-OARk6Fc-zgfyZGJIY8ZxOaRx9ik" />
+            android:value="@string/google_maps_key_RICARDO" />
 
         <activity
             android:name=".HeatmapActivity"

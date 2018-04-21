@@ -19,7 +19,6 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
-
 import java.util.List;
 
 import itcom.cartographer.Database.Database;
@@ -44,9 +43,9 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heatmap);
-
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);// Obtain the SupportMapFragment and get notified when the map is ready to be used.
+                .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         addAutocompleteFragment();
@@ -94,10 +93,9 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         };
         Gradient gradient = new Gradient(colors, startPoints);
 
-
         if(mProvider == null){//  if the provider is empty it will fill it with the data and add it to the overlay
             mProvider = new HeatmapTileProvider.Builder()
-                    .data(latLngList)
+                    .data(latLngList)//must be a collection
                     .radius(50)
                     .gradient(gradient)
                     .build();
@@ -108,7 +106,15 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
             mOverlay.clearTileCache();
         }
     }
+
+    /**
+     * This is a fragment containing an autocomplete text field that uses the google places API KEY
+     *  and the google places package.
+     *  It moves and lock the camera to the result selected from the text field.
+     */
     private void addAutocompleteFragment(){
+        //Obtain the PlaceAutocompleteFragment and sets a listener on it. When a place is selected,
+        // set and lock the camera on the location
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager()
                 .findFragmentById(R.id.place_autocomplete_fragment);
 
@@ -123,6 +129,6 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
             public void onError(Status status) {
                 Log.i("Error", "An error occurred: " + status);
             }
-        });
-    }
+        });//end listener
+    }//end method
 }
