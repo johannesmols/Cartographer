@@ -3,7 +3,12 @@ package itcom.cartographer;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -13,6 +18,7 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
+
 
 import java.util.List;
 
@@ -38,18 +44,18 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heatmap);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+                .findFragmentById(R.id.map);// Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment.getMapAsync(this);
+
+        addAutocompleteFragment();
         //For resource reasons, the database should be created here, before the callback onMapReady,
         //and the list must be populated at this point, otherwise it will throw a NullPointException.
         Database db = new Database(this, null, null, 1);
         latLngList = db.getLatLng();
-        //**Remember to close the database when it's no longer needed
-        db.close();
+        db.close();//**Remember to close the database when it's no longer needed
     }
-
 
     /**
      * Manipulates the map once available.
@@ -61,14 +67,16 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
      *
      * Please be sure you are using a device which can use google play services.
      */
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        //set the camera in Copenhagen
         LatLng copenhagen = new LatLng(55.650498, 12.555349);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(copenhagen));
-        //add the heat map Tile Overlay on top of the map
-        addHeatMap();
+
+        mMap = googleMap;
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(copenhagen));//set the camera in Copenhagen
+
+        addHeatMap();//add the heat map Tile Overlay on top of the map
     }
 
     private void addHeatMap(){
@@ -86,20 +94,35 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         };
         Gradient gradient = new Gradient(colors, startPoints);
 
-        // Create a heat map tile provider
-        if(mProvider == null){
+
+        if(mProvider == null){//  if the provider is empty it will fill it with the data and add it to the overlay
             mProvider = new HeatmapTileProvider.Builder()
                     .data(latLngList)
                     .radius(50)
                     .gradient(gradient)
                     .build();
-            // Add a tile overlay to the map, using the heat map tile provider.
-            mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
+            mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));// Add a tile overlay to the map, using the heat map tile provider.
         }else{
             // Change the data for the new one and clears the previous Tile Overlay (heat map)
             mProvider.setData(latLngList);
             mOverlay.clearTileCache();
         }
+    }
+    private void addAutocompleteFragment(){
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager()
+                .findFragmentById(R.id.place_autocomplete_fragment);
 
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
+                Log.i("Place", "Place: " + place.getName());
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.i("Error", "An error occurred: " + status);
+            }
+        });
     }
 }

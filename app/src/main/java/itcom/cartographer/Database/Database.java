@@ -185,29 +185,26 @@ public class Database extends SQLiteOpenHelper {
      * CAUTION!! this LatLng is NOT the same used for other purposes, this is coming from the google maps library.
      * @return the list.
      */
+
     public ArrayList<com.google.android.gms.maps.model.LatLng> getLatLng(){
-        //get the database to read only
-        SQLiteDatabase db = getReadableDatabase();
-        //selects the latitude and the longitude from the table in the database and add them to the "query"
-        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " + TABLE_LOCATION_HISTORY;
-        //the cursor is used to iterate through the query
-        Cursor cursor = db.rawQuery(query, null);
-        //Creates the list for the latitude and the longitude where to put the values from the "query"
-        ArrayList<com.google.android.gms.maps.model.LatLng> list = new ArrayList<>();
-        if((cursor != null && cursor.getCount() > 0)){
+
+        SQLiteDatabase db = getReadableDatabase();//get the database to read only
+        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " + TABLE_LOCATION_HISTORY; //selects the latitude and the longitude from the table in the database and add them to the "query"
+        Cursor cursor = db.rawQuery(query, null); //the cursor is used to iterate through the query
+        ArrayList<com.google.android.gms.maps.model.LatLng> list = new ArrayList<>(); //Creates the list for the latitude and the longitude where to put the values from the "query"
+        if((cursor != null && cursor.getCount() > 0)){ //if the query is not empty and bigger than only one element, the cursor will go thought the query
             cursor.moveToFirst();
             try{
                 do{
                     int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
                     int lng = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
-                    //Since the values in the database are coming "raw", they must be divided by 1E7 (10^7)
-                    list.add(new com.google.android.gms.maps.model.LatLng((double)lat/1E7,(double) lng/1E7));
+                    list.add(new com.google.android.gms.maps.model.LatLng((double)lat/1E7,(double) lng/1E7)); //Since the values in the database are coming "raw", they must be divided by 1E7 (10^7)
                     cursor.moveToNext();
                 }while(!cursor.isAfterLast());
             }finally {
                 cursor.close();
             }
-        }
+        } //finish the loop
         return list;
     }
 
