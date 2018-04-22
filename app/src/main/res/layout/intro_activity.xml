@@ -46,4 +46,13 @@
         android:text="@string/back"
         android:textColor="@android:color/white" />
 
+    <Button
+        android:id="@+id/bSecure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="187dp"
+        android:text="Secure" />
+
+
 </RelativeLayout>

@@ -50,7 +50,10 @@
 
         <activity
             android:name=".HeatmapActivity"
-            android:label="@string/title_activity_heatmap"></activity>
+            android:label="@string/title_activity_heatmap" />
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".UserAreaActivity"></activity>
     </application>
 
 </manifest>

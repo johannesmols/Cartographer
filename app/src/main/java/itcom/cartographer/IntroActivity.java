@@ -41,6 +41,7 @@ public class IntroActivity extends AppCompatActivity {
     private int[] layouts;
     private Button btnBack, btnNext;
     private PreferenceManager prefManager;
+    private Button bSecure;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +60,7 @@ public class IntroActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.intro_activity);
-
+        bSecure = findViewById(R.id.bSecure);
         viewPager = findViewById(R.id.view_pager);
         dotsLayout = findViewById(R.id.layoutDots);
         btnBack = findViewById(R.id.btn_back);
@@ -108,6 +109,14 @@ public class IntroActivity extends AppCompatActivity {
                 if (viewPager.getCurrentItem() < layouts.length - 1) {
                     viewPager.setCurrentItem(viewPager.getCurrentItem() + 1, true);
                 }
+            }
+        });
+
+        bSecure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent registerIntent = new Intent(IntroActivity.this, RegisterActivity.class);
+                IntroActivity.this.startActivity(registerIntent);
             }
         });
     }
