@@ -20,10 +20,12 @@ import com.google.maps.model.PlacesSearchResult;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import itcom.cartographer.FavPlace;
 import itcom.cartographer.Utils.CoordinateUtils;
 
 public class Database extends SQLiteOpenHelper {
@@ -216,34 +218,47 @@ public class Database extends SQLiteOpenHelper {
             cursor.close();
         }
 
-        ArrayList<ArrayList<Point>> outer = new ArrayList<>();
-        ArrayList<Point> inner = new ArrayList<>();
-        inner.add(coordinates.get(0));
-        outer.add(inner);
-
-        for (int i = 1; i < coordinates.size(); i++) {
-            Point firstItemOfLastArray = outer.get(outer.size() - 1).get(0);
-            if (CoordinateUtils.getDistanceBetweenTwoPoints(firstItemOfLastArray.x, firstItemOfLastArray.y, coordinates.get(i).x, coordinates.get(i).y) < 20) {
-                outer.get(outer.size() - 1).add(coordinates.get(i));
-            } else {
-                outer.add(new ArrayList<Point>());
-                outer.get(outer.size() - 1).add(coordinates.get(i));
+        ArrayList<FavPlace> finalList = new ArrayList<>();
+        Set<Point> uniquePlace = new HashSet<>();
+        for (Point p : coordinates) {
+            if (uniquePlace.add(p)) {
+                finalList.add(new FavPlace(p.x, p.y, Collections.frequency(coordinates, p)));
+                System.out.println("element: " + p
+                        + ", count: " + Collections.frequency(coordinates, p));
             }
         }
-        ArrayList<Point> finalList = new ArrayList<>();
 
-        //clear duplicates
-        for (int k = 0; k < outer.size(); k++) {
-            for (int i = 0; i < outer.get(k).size(); i++) {
-                for (int j = i + 1; j < outer.get(k).size(); j++) {
-                    if (outer.get(k).get(i).equals(outer.get(k).get(j))) {
-                        outer.get(k).remove(j);
-                        j--;
-                    }
-                }
-            }
-            finalList.addAll(outer.get(k));
-        }
+
+        System.out.println(printed.toString());
+
+//        ArrayList<ArrayList<Point>> outer = new ArrayList<>();
+//        ArrayList<Point> inner = new ArrayList<>();
+//        inner.add(coordinates.get(0));
+//        outer.add(inner);
+//
+//        for (int i = 1; i < coordinates.size(); i++) {
+//            Point firstItemOfLastArray = outer.get(outer.size() - 1).get(0);
+//            if (CoordinateUtils.getDistanceBetweenTwoPoints(firstItemOfLastArray.x, firstItemOfLastArray.y, coordinates.get(i).x, coordinates.get(i).y) < 20) {
+//                outer.get(outer.size() - 1).add(coordinates.get(i));
+//            } else {
+//                outer.add(new ArrayList<Point>());
+//                outer.get(outer.size() - 1).add(coordinates.get(i));
+//            }
+//        }
+//        ArrayList<Point> finalList = new ArrayList<>();
+//
+//        //clear duplicates
+//        for (int k = 0; k < outer.size(); k++) {
+//            for (int i = 0; i < outer.get(k).size(); i++) {
+//                for (int j = i + 1; j < outer.get(k).size(); j++) {
+//                    if (outer.get(k).get(i).equals(outer.get(k).get(j))) {
+//                        outer.get(k).remove(j);
+//                        j--;
+//                    }
+//                }
+//            }
+//            finalList.addAll(outer.get(k));
+//        }
 //        ArrayList<String> favouritePlaces = new ArrayList<>();
 //
 //        String CREATE_BOOK_TABLE = "CREATE TABLE books ( " +
@@ -270,27 +285,37 @@ public class Database extends SQLiteOpenHelper {
 //                System.out.println(e.getMessage());
 //            }
 //        }
-        ArrayList<PlacesSearchResponse> results = new ArrayList<>();
+
+
+//        String CREATE_BOOK_TABLE = "CREATE TABLE books ( " +
+//                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+//                "title TEXT, " +
+//                "author TEXT, " +
+//                "sales INTEGER )";
+//
+//        // create books table
+//        db.execSQL(CREATE_BOOK_TABLE);
+        ArrayList<PlacesSearchResponse> favouritePlaces = new ArrayList<>();
         System.out.println(finalList.get(0));
-        for (Point coordinate : finalList) {
+
+        for (FavPlace place : finalList) {
             try {
                 GeoApiContext context = new GeoApiContext.Builder()
                         .apiKey("AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE")
                         .build();
 
                 PlacesSearchResponse result = PlacesApi.nearbySearchQuery(context, new LatLng(
-                        (double) coordinate.x / 10000000, (double) coordinate
-                        .y / 10000000)).radius(1000).keyword("a").await();
+                        (double) place.x / 10000000, (double) place.y / 10000000)).radius(1000).keyword("a").await();
 
                 System.out.println(result);
 
-                results.add(result);
+                favouritePlaces.add(result);
 
             } catch (final Exception e) {
                 System.out.println(e);
             }
         }
 
-        return results;
+        return favouritePlaces;
     }
 }

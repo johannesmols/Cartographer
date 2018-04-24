@@ -63,7 +63,7 @@
 
     <!-- Cards -->
     <string name="card_heatmap_title">Heatmap</string>
-    <string name="card_second_title">Second</string>
+    <string name="card_fav_places_title">Favourite Places</string>
     <string name="card_third_title">Third</string>
 
     <!-- Intents -->
