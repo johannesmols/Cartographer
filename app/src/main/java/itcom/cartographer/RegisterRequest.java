@@ -13,12 +13,12 @@ public class RegisterRequest extends StringRequest{
 
     private Map<String,String> params;
 
-    public RegisterRequest(String name, String email, int pin, Response.Listener<String> listener){
+    public RegisterRequest(String Name, String Email, int Pin, Response.Listener<String> listener){
         super(Method.POST, RegisterRequestUrl, listener, null);
         params = new HashMap<>();
-        params.put("name", name);
-        params.put("email", email);
-        params.put("pin", pin + "");
+        params.put("Name", Name);
+        params.put("Email", Email);
+        params.put("Pin", Pin + "");
 
     }
 

@@ -34,9 +34,9 @@ RegisterActivity extends AppCompatActivity {
         bRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String name = etName.getText().toString();
-                final String email = etEmail.getText().toString();
-                final int pin = Integer.parseInt(etPinCode.getText().toString());
+                final String Name = etName.getText().toString();
+                final String Email = etEmail.getText().toString();
+                final int Pin = Integer.parseInt(etPinCode.getText().toString());
 
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
@@ -66,7 +66,7 @@ RegisterActivity extends AppCompatActivity {
                     }
                 };
 
-                RegisterRequest registerRequest = new RegisterRequest(name, email, pin, responseListener);
+                RegisterRequest registerRequest = new RegisterRequest(Name, Email, Pin, responseListener);
                 RequestQueue queue = Volley.newRequestQueue(RegisterActivity.this);
                 queue.add(registerRequest);
             }
