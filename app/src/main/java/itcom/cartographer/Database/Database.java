@@ -15,8 +15,10 @@ import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import itcom.cartographer.Utils.CoordinateUtils;
+import itcom.cartographer.Utils.PreferenceManager;
 
 public class Database extends SQLiteOpenHelper {
 
@@ -189,7 +191,12 @@ public class Database extends SQLiteOpenHelper {
     public ArrayList<com.google.android.gms.maps.model.LatLng> getLatLng(){
 
         SQLiteDatabase db = getReadableDatabase();//get the database to read only
-        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " + TABLE_LOCATION_HISTORY; //selects the latitude and the longitude from the table in the database and add them to the "query"
+        PreferenceManager preferenceManager = new PreferenceManager(_context);
+        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 +
+                " FROM " + TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP +
+                " BETWEEN " + preferenceManager.getDateRangeStart().getTimeInMillis() +
+                " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis(); //selects the latitude and the longitude from the table in the database and add them to the "query"
+
         Cursor cursor = db.rawQuery(query, null); //the cursor is used to iterate through the query
         ArrayList<com.google.android.gms.maps.model.LatLng> list = new ArrayList<>(); //Creates the list for the latitude and the longitude where to put the values from the "query"
         if((cursor != null && cursor.getCount() > 0)){ //if the query is not empty and bigger than only one element, the cursor will go thought the query
@@ -208,55 +215,93 @@ public class Database extends SQLiteOpenHelper {
         return list;
     }
 
+    public HashMap<com.google.android.gms.maps.model.LatLng,ArrayList<com.google.android.gms.maps.model.LatLng>> getLatLngTimed(){
+        SQLiteDatabase db = getReadableDatabase();//get the database to read only
+        PreferenceManager preferenceManager = new PreferenceManager(_context);
+        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + ", " + LH_TIMESTAMP +
+                " FROM " + TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP +
+                " BETWEEN " + preferenceManager.getDateRangeStart().getTimeInMillis() +
+                " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis();
+
+        Cursor cursor = db.rawQuery(query, null);
+        HashMap<com.google.android.gms.maps.model.LatLng,ArrayList<com.google.android.gms.maps.model.LatLng>> hashMap = new HashMap<>();
+        if((cursor != null && cursor.getCount() > 0)){
+            cursor.moveToFirst();
+            double timeTemp = (double) cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP));
+            try{
+                do{
+                    int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
+                    int lng = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
+                    com.google.android.gms.maps.model.LatLng StartPoint = new com.google.android.gms.maps.model.LatLng((double)lat/1E7,(double) lng/1E7);
+                    ArrayList arrayList = new ArrayList();
+
+                    while(cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP)) - timeTemp  <= 3.6E+6 && !cursor.isAfterLast()){
+                        timeTemp = (double) cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP));
+                        int latEnd = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
+                        int lngEnd = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
+                        com.google.android.gms.maps.model.LatLng point = new com.google.android.gms.maps.model.LatLng((double)latEnd/1E7,(double) lngEnd/1E7);
+                        arrayList.add(point);
+                        hashMap.put(StartPoint, arrayList);
+                        cursor.moveToNext();
+                    }
+                    cursor.moveToNext();
+                }while(!cursor.isAfterLast());
+            }finally {
+                cursor.close();
+            }
+        } //finish the loop
+        return hashMap;
+    }
+
     public String getFavouritePlaces() {
         String latestAddress;
         SQLiteDatabase db = getReadableDatabase();
         //Get the latest date from db
         String dateQuery = "SELECT " + LH_TIMESTAMP + " FROM " + TABLE_LOCATION_HISTORY + " LIMIT 2";
-        Cursor dateCursor = db.rawQuery(dateQuery, null);
-        dateCursor.moveToFirst();
-        long latestDate = Long.parseLong(dateCursor.getString(dateCursor.getColumnIndex(LH_TIMESTAMP)));
 
-        // subtract 1 week from the latest date to get a date range
-        long queryEndDate = latestDate - 86400 * 7 * 1000;
+        try(Cursor dateCursor = db.rawQuery(dateQuery, null)){
+            dateCursor.moveToFirst();
+            long latestDate = Long.parseLong(dateCursor.getString(dateCursor.getColumnIndex(LH_TIMESTAMP)));
+            dateCursor.close();
+            // subtract 1 week from the latest date to get a date range
+            long queryEndDate = latestDate - 86400 * 7 * 1000;
 
-        // select all entries that fit in the date range and save them in an array list
-        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " +
-                TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN " + queryEndDate +
-                " AND " + latestDate;
+            // select all entries that fit in the date range and save them in an array list
+            String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " +
+                    TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN " + queryEndDate +
+                    " AND " + latestDate;
 
-        Cursor cursor = db.rawQuery(query, null);
-        ArrayList<Point> coordinates = new ArrayList<>();
+            ArrayList<Point> coordinates = new ArrayList<>();
 
-        try {
-            while (cursor.moveToNext()) {
-                int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
-                int lon = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
-                coordinates.add(new Point(lat, lon));
+            try (Cursor cursor = db.rawQuery(query, null)) {
+                while (cursor.moveToNext()) {
+                    int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
+                    int lon = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
+                    coordinates.add(new Point(lat, lon));
+                }
+                cursor.close();
             }
-        } finally {
-            cursor.close();
+            //this is just a test of the getDistanceBetweenTwoPoints method
+            System.out.println(CoordinateUtils.getDistanceBetweenTwoPoints(55.6482684, 12.5526691, 55.6481274, 12.5526561));
+
+            //get the latest location you were at as a readable address
+            LatLng latestLocation = new LatLng((double) coordinates.get(0).x / 1E7, (double) coordinates.get(0).y / 1E7);
+
+            try {
+                GeoApiContext context = new GeoApiContext.Builder()
+                        .apiKey("AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE")
+                        .build();
+                GeocodingResult[] results = GeocodingApi.reverseGeocode(context, latestLocation).await();
+                System.out.println("results");
+                System.out.println(results[0].formattedAddress);
+                latestAddress = results[0].formattedAddress;
+            } catch (final Exception e) {
+                System.out.println(e.getMessage());
+                latestAddress = "Error";
+            }
         }
-
-        //this is just a test of the getDistanceBetweenTwoPoints method
-        System.out.println(CoordinateUtils.getDistanceBetweenTwoPoints(55.6482684, 12.5526691, 55.6481274, 12.5526561));
-
-        //get the latest location you were at as a readable address
-        LatLng latestLocation = new LatLng((double) coordinates.get(0).x / 10000000, (double) coordinates.get(0).y / 10000000);
-        
-        try {
-            GeoApiContext context = new GeoApiContext.Builder()
-                    .apiKey("AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE")
-                    .build();
-            GeocodingResult[] results = GeocodingApi.reverseGeocode(context, latestLocation).await();
-            System.out.println("results");
-            System.out.println(results[0].formattedAddress);
-            latestAddress = results[0].formattedAddress;
-        } catch (final Exception e) {
-            System.out.println(e.getMessage());
-            latestAddress = "Error";
-        }
-
         return latestAddress;
     }
+
+
 }

@@ -6,8 +6,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -26,8 +26,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import itcom.cartographer.MainActivity;
-import itcom.cartographer.Utils.PreferenceManager;
 import itcom.cartographer.R;
+import itcom.cartographer.Utils.PreferenceManager;
 
 public class ProcessJSON extends AppCompatActivity {
 
@@ -50,6 +50,7 @@ public class ProcessJSON extends AppCompatActivity {
 
         // Read intent to get the Uri of the JSON file
         Intent intent = getIntent();
+
         if (intent.hasExtra(getString(R.string.intent_intro_to_json_uri))) {
             Uri file = Uri.parse(intent.getStringExtra(getString(R.string.intent_intro_to_json_uri)));
             parseJSON(file);

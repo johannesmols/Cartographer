@@ -1,9 +1,12 @@
 package itcom.cartographer;
 
 import android.graphics.Color;
-import android.support.v4.app.FragmentActivity;
+import android.location.Geocoder;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
@@ -14,14 +17,26 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import itcom.cartographer.Database.Database;
+import itcom.cartographer.Utils.DirectionsAsync;
 
 //DEMO: https://github.com/googlemaps/android-maps-utils/blob/master/demo/src/com/google/maps/android/utils/demo/HeatmapsDemoActivity.java
 //COLORS: https://convertingcolors.com/
@@ -34,10 +49,13 @@ import itcom.cartographer.Database.Database;
 
 public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
+    public static GoogleMap mMap;
     private HeatmapTileProvider mProvider;
     private TileOverlay mOverlay;
     private List<LatLng> latLngList;
+    public static Polyline line;
+    private HashMap<LatLng, ArrayList<LatLng>> latLngDir;
+    private AsyncTask<LatLng, Void, List<LatLng>> directionsAsync;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +64,7 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+
         mapFragment.getMapAsync(this);
 
         addAutocompleteFragment();
@@ -53,7 +72,9 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         //and the list must be populated at this point, otherwise it will throw a NullPointException.
         Database db = new Database(this, null, null, 1);
         latLngList = db.getLatLng();
-        db.close();//**Remember to close the database when it's no longer needed
+        latLngDir = db.getLatLngTimed();
+        db.close();
+
     }
 
     /**
@@ -75,7 +96,9 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(copenhagen));//set the camera in Copenhagen
 
-        addHeatMap();//add the heat map Tile Overlay on top of the map
+        /*addHeatMap();*///add the heat map Tile Overlay on top of the map
+        addPolylines();
+
     }
 
     private void addHeatMap(){
@@ -92,20 +115,28 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
                 0.0f, 0.10f, 0.20f, 0.60f, 1.0f
         };
         Gradient gradient = new Gradient(colors, startPoints);
+        try{
+            if(mProvider == null && latLngList != null){//  if the provider is empty it will fill it with the data and add it to the overlay
+                mProvider = new HeatmapTileProvider.Builder()
+                        .data(latLngList)//must be a collection
+                        .radius(50)
+                        .gradient(gradient)
+                        .build();
+                mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));// Add a tile overlay to the map, using the heat map tile provider.
+            }else{
+                // Change the data for the new one and clears the previous Tile Overlay (heat map)
+                if (mProvider != null) {
+                    mProvider.setData(latLngList);
+                }
+                mOverlay.clearTileCache();
 
-        if(mProvider == null){//  if the provider is empty it will fill it with the data and add it to the overlay
-            mProvider = new HeatmapTileProvider.Builder()
-                    .data(latLngList)//must be a collection
-                    .radius(50)
-                    .gradient(gradient)
-                    .build();
-            mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));// Add a tile overlay to the map, using the heat map tile provider.
-        }else{
-            // Change the data for the new one and clears the previous Tile Overlay (heat map)
-            mProvider.setData(latLngList);
-            mOverlay.clearTileCache();
+            }
+        }catch(IllegalArgumentException iae){
+            iae.printStackTrace();
+            Toast.makeText(this, "No places to show", Toast.LENGTH_LONG).show();
         }
     }
+
 
     /**
      * This is a fragment containing an autocomplete text field that uses the google places API KEY
@@ -131,4 +162,49 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
             }
         });//end listener
     }//end method
+
+    private void addPlaces(){
+
+        try{
+            Hashtable< LatLng, Integer> hashTable = new Hashtable<>();
+            for(LatLng aLatLngList: latLngList) {
+                if (!hashTable.containsKey(aLatLngList)) {
+                    hashTable.put(aLatLngList, +1);
+                } else {
+                    hashTable.put(aLatLngList, 1);
+                }
+            }
+            List<Map.Entry<LatLng, Integer>> list = new LinkedList<>(hashTable.entrySet());
+            Collections.sort(list, new Comparator<Map.Entry<LatLng, Integer>>() {
+                @Override
+                public int compare(Map.Entry<LatLng, Integer> o1, Map.Entry<LatLng, Integer> o2) {
+                    return o2.getValue().compareTo(o1.getValue());
+                }
+            });
+
+            for(int x = 0; x < 5; x++){
+                if(list.get(x) != null){
+                    Geocoder geocoder= new Geocoder(this, Locale.getDefault());
+                    geocoder.getFromLocation( list.get(0).getKey().latitude, list.get(0).getKey().longitude, 1);
+                    if(Geocoder.isPresent()){
+                        mMap.addMarker(new MarkerOptions().position(list.get(x).getKey()).title(geocoder.toString()));
+                    }
+                }
+            }
+            }catch(IOException ioe){
+                ioe.printStackTrace();
+                Toast.makeText(this, "No location found", Toast.LENGTH_LONG).show();
+            }
+    }
+
+    private void addPolylines(){
+        for(LatLng position : latLngDir.keySet() ){
+            List<LatLng> list = latLngDir.get(position);
+            LatLng temp = position;
+            for(int x = 0; x < list.size(); x++){
+                directionsAsync = new DirectionsAsync().execute(temp, list.get(x));
+                temp = list.get(x);
+            }
+        }
+    }
 }
