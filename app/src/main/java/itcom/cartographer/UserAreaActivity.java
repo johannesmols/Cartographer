@@ -1,5 +1,6 @@
 package itcom.cartographer;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.EditText;
@@ -12,11 +13,12 @@ public class UserAreaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_area);
 
-        final TextView tvChangePinCode = (TextView) findViewById(R.id.tvChangePinCode);
-        final EditText etEmail = (EditText) findViewById(R.id.etEmail);
-        final TextView tvCurrentPinCode = (TextView) findViewById(R.id.tvCurrentPinCode);
-        final EditText etPinCode = (EditText) findViewById(R.id.etPinCode);
-        final TextView tvNewPinCode = (TextView) findViewById(R.id.tvNewPinCode);
-        final EditText etNewPinCode = (EditText) findViewById(R.id.etNewPinCode);
+        final TextView tvHello = (TextView) findViewById(R.id.tvHello);
+        final TextView tvName = (TextView) findViewById(R.id.tvName);
+
+        Intent intent = getIntent();
+        String name = intent.getStringExtra("name");
+
+        tvName.setText(name);
     }
 }

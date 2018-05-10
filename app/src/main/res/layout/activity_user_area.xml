@@ -7,79 +7,17 @@
     tools:context="itcom.cartographer.UserAreaActivity">
 
     <TextView
-        android:id="@+id/tvChangePinCode"
+        android:id="@+id/tvHello"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="147dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="44dp"
-        android:text="Here you can change your PIN Code"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/etEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="153dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="30dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="E-mail"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvChangePinCode" />
-
-    <EditText
-        android:id="@+id/etPinCode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="153dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="13dp"
-        android:ems="10"
-        android:inputType="numberPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvCurrentPinCode" />
+        android:text="Hello"
+        tools:layout_editor_absoluteX="144dp"
+        tools:layout_editor_absoluteY="82dp" />
 
     <TextView
-        android:id="@+id/tvCurrentPinCode"
+        android:id="@+id/tvName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="260dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:text="Current PIN Code"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etEmail" />
-
-    <TextView
-        android:id="@+id/tvNewPinCode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="279dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="19dp"
-        android:text="New PIN Code"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etPinCode" />
-
-    <EditText
-        android:id="@+id/etNewPinCode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="153dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:inputType="numberPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvNewPinCode" />
+        tools:layout_editor_absoluteX="125dp"
+        tools:layout_editor_absoluteY="150dp" />
 </android.support.constraint.ConstraintLayout>
