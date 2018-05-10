@@ -5,17 +5,15 @@ package itcom.cartographer;
  */
 
 public class FavPlace {
-    public double x;
-    public double y;
-    public int count;
+    public int id;
+    public double lat;
+    public double lon;
+    public int visits;
 
-    public FavPlace(double x, double y, int count) {
-        this.x = x;
-        this.y = y;
-        this.count = count;
-    }
-
-    private void incrementCount() {
-        this.count++;
+    public FavPlace(int id, double lat, double lon, int visits) {
+        this.id = id;
+        this.lat = lat;
+        this.lon = lon;
+        this.visits = visits;
     }
 }
