@@ -10,14 +10,26 @@
         android:id="@+id/tvHello"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="491dp"
+        android:layout_marginEnd="208dp"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="82dp"
         android:text="Hello"
-        tools:layout_editor_absoluteX="144dp"
-        tools:layout_editor_absoluteY="82dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tvName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="125dp"
-        tools:layout_editor_absoluteY="150dp" />
+        android:layout_marginBottom="423dp"
+        android:layout_marginEnd="258dp"
+        android:layout_marginStart="125dp"
+        android:layout_marginTop="150dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
