@@ -82,6 +82,7 @@ public class JSONParserDirections {
                 connection.setRequestProperty("Accept-Charset", charset);
                 connection.setConnectTimeout(15000);
                 connection.connect();
+
             }catch(IOException e){
                 e.printStackTrace();
             }

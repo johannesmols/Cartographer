@@ -218,13 +218,14 @@ public class Database extends SQLiteOpenHelper {
     public HashMap<com.google.android.gms.maps.model.LatLng,ArrayList<com.google.android.gms.maps.model.LatLng>> getLatLngTimed(){
         SQLiteDatabase db = getReadableDatabase();//get the database to read only
         PreferenceManager preferenceManager = new PreferenceManager(_context);
+
         String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + ", " + LH_TIMESTAMP +
                 " FROM " + TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP +
                 " BETWEEN " + preferenceManager.getDateRangeStart().getTimeInMillis() +
                 " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis();
 
         Cursor cursor = db.rawQuery(query, null);
-        HashMap<com.google.android.gms.maps.model.LatLng,ArrayList<com.google.android.gms.maps.model.LatLng>> hashMap = new HashMap<>();
+        HashMap < com.google.android.gms.maps.model.LatLng,ArrayList < com.google.android.gms.maps.model.LatLng>> hashMap = new HashMap<>();
         if((cursor != null && cursor.getCount() > 0)){
             cursor.moveToFirst();
             double timeTemp = (double) cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP));
@@ -233,9 +234,9 @@ public class Database extends SQLiteOpenHelper {
                     int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
                     int lng = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
                     com.google.android.gms.maps.model.LatLng StartPoint = new com.google.android.gms.maps.model.LatLng((double)lat/1E7,(double) lng/1E7);
-                    ArrayList arrayList = new ArrayList();
+                    ArrayList<com.google.android.gms.maps.model.LatLng> arrayList = new ArrayList<>();
 
-                    while(cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP)) - timeTemp  <= 3.6E+6 && !cursor.isAfterLast()){
+                    while((cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP)) - timeTemp  <= 3.6E+6) && (!cursor.isAfterLast())){
                         timeTemp = (double) cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP));
                         int latEnd = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
                         int lngEnd = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
