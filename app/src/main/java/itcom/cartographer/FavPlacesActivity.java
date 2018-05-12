@@ -17,6 +17,7 @@ import com.google.maps.model.PlacesSearchResponse;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import itcom.cartographer.Database.Database;
@@ -24,7 +25,10 @@ import itcom.cartographer.Database.Database;
 public class FavPlacesActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    static ScheduledFuture<?> scheduleFavPlacesGetter;
     ArrayList<FavPlaceResult> results;
+    final Database db = new Database(this, null, null, 1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,23 +38,23 @@ public class FavPlacesActivity extends FragmentActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        final Database db = new Database(this, null, null, 1);
-        new Thread(new Runnable() {
-            public void run() {
-                System.out.println("second threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond threadsecond thread");
-                db.generateFavouritePlaces();
-            }
-        }).start();
+        results = db.getFavouritePlaces();
 
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(new Runnable() {
-            public void run() {
-                System.out.println("Hello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello worldHello world");
-                results = db.getFavouritePlaces();
-            }
-        }, 0, 10, TimeUnit.SECONDS);
+        if (results.size() < 1) {
+            new Thread(new Runnable() {
+                public void run() {
+                    db.generateFavouritePlaces();
+                    scheduleFavPlacesGetter.cancel(false);
+                }
+            }).start();
 
-        System.out.println(results);
+            scheduleFavPlacesGetter = executor.scheduleAtFixedRate(new Runnable() {
+                public void run() {
+                    results = db.getFavouritePlaces();
+                    // TODO: trigger update of map
+                }
+            }, 0, 10, TimeUnit.SECONDS);
+        }
     }
 
 
@@ -67,16 +71,13 @@ public class FavPlacesActivity extends FragmentActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-//        for (FavPlaceResult result : results) {
-//            //get your favourite locations as a readable address
-//            LatLng position = new LatLng(result.results[0].geometry
-//                    .location.lat, result.results[0].geometry
-//                    .location.lng);
-//            mMap.addMarker(new MarkerOptions().position(position)).setTitle(result.results[0].name);
-//        }
+        for (FavPlaceResult result : results) {
+            LatLng position = new LatLng(result.lat, result.lon);
+            mMap.addMarker(new MarkerOptions().position(position)).setTitle(result.name);
+        }
 
 
-        // Add a marker in Sydney and move the camera
+        // Add a marker in Cph and move the camera
         LatLng cph = new LatLng(55.679, 12.572);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(cph, 12));
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {

@@ -16,4 +16,8 @@ public class FavPlace {
         this.lon = lon;
         this.visits = visits;
     }
+
+    public void incrementVisits() {
+        this.visits++;
+    }
 }

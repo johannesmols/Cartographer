@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import itcom.cartographer.FavPlace;
@@ -41,6 +42,8 @@ public class Database extends SQLiteOpenHelper {
     private static final String TABLE_FAV_PLACES = "fav_places";
     private static final String FP_ID = "lh_id";
     private static final String FP_PLACE_ID = "place_id";
+    private static final String FP_LATITUDE = "latitude";
+    private static final String FP_LONGITUDE = "longitude";
     private static final String FP_NAME = "name";
     private static final String FP_ICON = "icon";
     private static final String FP_RATING = "rating";
@@ -91,6 +94,8 @@ public class Database extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(query);
         String favPlacesTableQuery = "CREATE TABLE " + TABLE_FAV_PLACES + "(" +
                 FP_PLACE_ID + " TEXT, " +
+                FP_LATITUDE + " DOUBLE, " +
+                FP_LONGITUDE + " DOUBLE, " +
                 FP_NAME + " TEXT, " +
                 FP_ICON + " TEXT, " +
                 FP_RATING + " DOUBLE, " +
@@ -100,6 +105,7 @@ public class Database extends SQLiteOpenHelper {
                 "FOREIGN KEY(" + FP_ID + ") REFERENCES " + TABLE_LOCATION_HISTORY + "(" + LH_ID
                 + "));";
 
+        System.out.println(favPlacesTableQuery);
         sqLiteDatabase.execSQL(favPlacesTableQuery);
     }
 
@@ -221,13 +227,27 @@ public class Database extends SQLiteOpenHelper {
     public void generateFavouritePlaces() {
         SQLiteDatabase db = getWritableDatabase();
         PreferenceManager preferenceManager = new PreferenceManager(_context);
+        System.out.println("11111111111111111111111111111111");
+        String dateQuery = "SELECT " + LH_TIMESTAMP + " FROM " + TABLE_LOCATION_HISTORY + " LIMIT 2";
+        Cursor dateCursor = db.rawQuery(dateQuery, null);
+        dateCursor.moveToFirst();
+        long latestDate = Long.parseLong(dateCursor.getString(dateCursor.getColumnIndex(LH_TIMESTAMP)));
+        dateCursor.close();
+        long queryEndDate = latestDate - 86400 * 14 * 1000;
+        String query = "SELECT * FROM " +
+                TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN " + queryEndDate +
+                " AND " + latestDate + " ORDER BY " + LH_LATITUDE_E7;
 
         // select all entries that fit in the date range and save them in an array list
-        String query = "SELECT * FROM " +
-                TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN " + preferenceManager.getDateRangeStart().getTimeInMillis() +
-                " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis();
+//        String query = "SELECT * FROM " +
+//                TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN " + preferenceManager.getDateRangeStart().getTimeInMillis() +
+//                " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis();
 
         Cursor cursor = db.rawQuery(query, null);
+
+        System.out.println("cursor cursor cursor");
+        System.out.println(cursor.getCount());
+
         ArrayList<FavPlace> coordinates = new ArrayList<>();
 
         try {
@@ -235,47 +255,59 @@ public class Database extends SQLiteOpenHelper {
                 int id = cursor.getInt(cursor.getColumnIndex(LH_ID));
                 int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
                 int lon = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
-                coordinates.add(new FavPlace(id, lat, lon, 0));
+                boolean isDuplicate = false;
+                for (FavPlace p : coordinates) {
+                    if (p.lat == (double) lat / 10000000 && p.lon == (double) lon / 10000000) {
+                        System.out.println("duplicate");
+                        p.incrementVisits();
+                        isDuplicate = true;
+                    }
+                }
+                if (!isDuplicate) {
+                    coordinates.add(new FavPlace(id, (double) lat / 10000000, (double) lon /
+                            10000000, 0));
+                }
             }
         } finally {
             cursor.close();
         }
 
-        ArrayList<FavPlace> finalList = new ArrayList<>();
-        Set<FavPlace> uniquePlaces = new HashSet<>();
-        for (FavPlace p : coordinates) {
-            if (uniquePlaces.add(p)) {
-                finalList.add(new FavPlace(p.id, p.lat, p.lon, Collections.frequency(coordinates,
-                        p)));
-            }
-        }
-
         int i = 0;
-        for (FavPlace place : finalList) {
-            if (i < 5) {
+        for (FavPlace place : coordinates) {
+            if (i < 100) {
                 try {
+                    System.out.println
+                            ("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+
                     GeoApiContext context = new GeoApiContext.Builder()
                             .apiKey("AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE")
                             .build();
 
                     PlacesSearchResponse result = PlacesApi.nearbySearchQuery(context, new LatLng(
-                            (double) place.lat / 10000000, (double) place.lon / 10000000)).radius
-                            (1000)
-                            .keyword("a").await();
+                            place.lat, place.lon)).radius
+                            (1000).keyword("a").await();
 
                     ContentValues favPlaceRow = new ContentValues();
-                    favPlaceRow.put(FP_ID, place.id);
-                    favPlaceRow.put(FP_PLACE_ID, result.results[0].placeId);
-                    favPlaceRow.put(FP_NAME, result.results[0].name);
-                    favPlaceRow.put(FP_ICON, String.valueOf(result.results[0].icon));
-                    favPlaceRow.put(FP_RATING, result.results[0].rating);
-                    favPlaceRow.put(FP_PHOTO, String.valueOf(result.results[0].photos[0]));
-                    favPlaceRow.put(FP_ADDRESS, result.results[0].vicinity);
-                    db.insert(TABLE_FAV_PLACES, null, favPlaceRow);
+                    System.out.println(result.results);
+                    int randomElementIndex = new Random().nextInt(result.results.length);
+                    if (result.results.length > 0) {
+                        favPlaceRow.put(FP_ID, place.id);
+                        favPlaceRow.put(FP_PLACE_ID, result.results[randomElementIndex].placeId);
+                        favPlaceRow.put(FP_LATITUDE, place.lat);
+                        favPlaceRow.put(FP_LONGITUDE, place.lon);
+                        favPlaceRow.put(FP_NAME, result.results[randomElementIndex].name);
+                        favPlaceRow.put(FP_ICON, String.valueOf(result.results[randomElementIndex].icon));
+                        favPlaceRow.put(FP_RATING, result.results[randomElementIndex].rating);
+                        favPlaceRow.put(FP_PHOTO, String.valueOf(result.results[randomElementIndex].photos[0]));
+                        favPlaceRow.put(FP_ADDRESS, result.results[randomElementIndex].vicinity);
+                        db.insert(TABLE_FAV_PLACES, null, favPlaceRow);
+                    }
+
                 } catch (final Exception e) {
+                    System.out.println("error in radius search API");
                     System.out.println(e);
                 }
-                i++;
+                i = i + 5;
             }
         }
     }
@@ -289,19 +321,13 @@ public class Database extends SQLiteOpenHelper {
                 favPlacesList.add(new FavPlaceResult(
                         cursor.getInt(cursor.getColumnIndex(FP_ID)),
                         cursor.getString(cursor.getColumnIndex(FP_PLACE_ID)),
+                        cursor.getDouble(cursor.getColumnIndex(FP_LATITUDE)),
+                        cursor.getDouble(cursor.getColumnIndex(FP_LONGITUDE)),
                         cursor.getString(cursor.getColumnIndex(FP_NAME)),
                         cursor.getString(cursor.getColumnIndex(FP_ICON)),
                         cursor.getDouble(cursor.getColumnIndex(FP_RATING)),
                         cursor.getString(cursor.getColumnIndex(FP_PHOTO)),
                         cursor.getString(cursor.getColumnIndex(FP_ADDRESS))));
-
-                System.out.println(cursor.getInt(cursor.getColumnIndex(FP_ID)));
-                System.out.println(cursor.getString(cursor.getColumnIndex(FP_PLACE_ID)));
-                System.out.println(cursor.getString(cursor.getColumnIndex(FP_NAME)));
-                System.out.println(cursor.getString(cursor.getColumnIndex(FP_ICON)));
-                System.out.println(cursor.getDouble(cursor.getColumnIndex(FP_RATING)));
-                System.out.println(cursor.getString(cursor.getColumnIndex(FP_PHOTO)));
-                System.out.println(cursor.getString(cursor.getColumnIndex(FP_ADDRESS)));
             }
         } finally {
             cursor.close();
