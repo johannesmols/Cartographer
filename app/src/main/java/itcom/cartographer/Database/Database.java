@@ -1,22 +1,24 @@
 package itcom.cartographer.Database;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
-import android.graphics.Point;
 import android.util.Log;
 
 import com.google.maps.GeoApiContext;
-import com.google.maps.GeocodingApi;
-import com.google.maps.model.GeocodingResult;
+import com.google.maps.PlacesApi;
 import com.google.maps.model.LatLng;
+import com.google.maps.model.PlacesSearchResponse;
 
 import java.util.ArrayList;
 
-import itcom.cartographer.Utils.CoordinateUtils;
+import itcom.cartographer.FavPlace;
+import itcom.cartographer.FavPlaceResult;
+import itcom.cartographer.Utils.PreferenceManager;
 
 public class Database extends SQLiteOpenHelper {
 
@@ -24,6 +26,18 @@ public class Database extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "LocationHistory";
+
+    private static final String TABLE_FAV_PLACES = "fav_places";
+    private static final String FP_ID = "lh_id";
+    private static final String FP_PLACE_ID = "place_id";
+    private static final String FP_LATITUDE = "latitude";
+    private static final String FP_LONGITUDE = "longitude";
+    private static final String FP_NAME = "name";
+    private static final String FP_ICON = "icon";
+    private static final String FP_RATING = "rating";
+    private static final String FP_PHOTO = "photo";
+    private static final String FP_ADDRESS = "address";
+
 
     private static final String TABLE_LOCATION_HISTORY = "location_history";
     private static final String LH_ID = "lh_id";
@@ -65,6 +79,21 @@ public class Database extends SQLiteOpenHelper {
                 AC_TIMESTAMP + " BIGINT NOT NULL" +
                 ");";
         sqLiteDatabase.execSQL(query);
+        String favPlacesTableQuery = "CREATE TABLE " + TABLE_FAV_PLACES + "(" +
+                FP_PLACE_ID + " TEXT, " +
+                FP_LATITUDE + " DOUBLE, " +
+                FP_LONGITUDE + " DOUBLE, " +
+                FP_NAME + " TEXT, " +
+                FP_ICON + " TEXT, " +
+                FP_RATING + " DOUBLE, " +
+                FP_PHOTO + " TEXT, " +
+                FP_ADDRESS + " TEXT, " +
+                FP_ID + " INTEGER, " +
+                "FOREIGN KEY(" + FP_ID + ") REFERENCES " + TABLE_LOCATION_HISTORY + "(" + LH_ID
+                + "));";
+
+        System.out.println(favPlacesTableQuery);
+        sqLiteDatabase.execSQL(favPlacesTableQuery);
     }
 
     @Override
@@ -72,6 +101,11 @@ public class Database extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCATION_HISTORY);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTIVITIES);
         onCreate(sqLiteDatabase);
+    }
+
+    @Override // here I am trying to enable the foreign keys
+    public void onOpen(SQLiteDatabase db) {
+        db.execSQL("PRAGMA foreign_keys=ON");
     }
 
     public int getDatapointCount() {
@@ -211,55 +245,100 @@ public class Database extends SQLiteOpenHelper {
         return list;
     }
 
-    public String getFavouritePlaces() {
-        String latestAddress;
-        SQLiteDatabase db = getReadableDatabase();
-        //Get the latest date from db
-        String dateQuery = "SELECT " + LH_TIMESTAMP + " FROM " + TABLE_LOCATION_HISTORY + " LIMIT 2";
-        Cursor dateCursor = db.rawQuery(dateQuery, null);
-        dateCursor.moveToFirst();
-        long latestDate = Long.parseLong(dateCursor.getString(dateCursor.getColumnIndex(LH_TIMESTAMP)));
-
-        // subtract 1 week from the latest date to get a date range
-        long queryEndDate = latestDate - 86400 * 7 * 1000;
+    public void generateFavouritePlaces() {
+        SQLiteDatabase db = getWritableDatabase();
+        PreferenceManager preferenceManager = new PreferenceManager(_context);
+//        String dateQuery = "SELECT " + LH_TIMESTAMP + " FROM " + TABLE_LOCATION_HISTORY + " LIMIT 2";
+//        Cursor dateCursor = db.rawQuery(dateQuery, null);
+//        dateCursor.moveToFirst();
+//        long latestDate = Long.parseLong(dateCursor.getString(dateCursor.getColumnIndex(LH_TIMESTAMP)));
+//        dateCursor.close();
+//        long queryEndDate = latestDate - 86400 * 14 * 1000;
+//        String query = "SELECT * FROM " +
+//                TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN " + queryEndDate +
+//                " AND " + latestDate + " ORDER BY " + LH_LATITUDE_E7;
 
         // select all entries that fit in the date range and save them in an array list
-        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " +
-                TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN " + queryEndDate +
-                " AND " + latestDate;
+        String query = "SELECT * FROM " +
+                TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN " + preferenceManager.getDateRangeStart().getTimeInMillis() +
+                " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis();
 
         Cursor cursor = db.rawQuery(query, null);
-        ArrayList<Point> coordinates = new ArrayList<>();
-
+        ArrayList<FavPlace> coordinates = new ArrayList<>();
+        boolean isDuplicate;
         try {
             while (cursor.moveToNext()) {
+                int id = cursor.getInt(cursor.getColumnIndex(LH_ID));
                 int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
                 int lon = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
-                coordinates.add(new Point(lat, lon));
+                isDuplicate = false;
+                for (FavPlace p : coordinates) {
+                    if (p.lat == (double) lat / 10000000 && p.lon == (double) lon / 10000000) {
+                        p.incrementVisits();
+                        isDuplicate = true;
+                    }
+                }
+                if (!isDuplicate) {
+                    coordinates.add(new FavPlace(id, (double) lat / 10000000, (double) lon /
+                            10000000, 0));
+                }
             }
         } finally {
             cursor.close();
         }
 
-        //this is just a test of the getDistanceBetweenTwoPoints method
-        System.out.println(CoordinateUtils.getDistanceBetweenTwoPoints(55.6482684, 12.5526691, 55.6481274, 12.5526561));
+        for (FavPlace place : coordinates) {
+                try {
+                    GeoApiContext context = new GeoApiContext.Builder()
+                            .apiKey("AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE")
+                            .build();
 
-        //get the latest location you were at as a readable address
-        LatLng latestLocation = new LatLng((double) coordinates.get(0).x / 10000000, (double) coordinates.get(0).y / 10000000);
-        
-        try {
-            GeoApiContext context = new GeoApiContext.Builder()
-                    .apiKey("AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE")
-                    .build();
-            GeocodingResult[] results = GeocodingApi.reverseGeocode(context, latestLocation).await();
-            System.out.println("results");
-            System.out.println(results[0].formattedAddress);
-            latestAddress = results[0].formattedAddress;
-        } catch (final Exception e) {
-            System.out.println(e.getMessage());
-            latestAddress = "Error";
+                    PlacesSearchResponse result = PlacesApi.nearbySearchQuery(context, new LatLng(
+                            place.lat, place.lon)).radius
+                            (1000).keyword("a").await();
+
+                    ContentValues favPlaceRow = new ContentValues();
+                    if (result.results.length > 0) {
+                        favPlaceRow.put(FP_ID, place.id);
+                        favPlaceRow.put(FP_PLACE_ID, result.results[0].placeId);
+                        favPlaceRow.put(FP_LATITUDE, place.lat);
+                        favPlaceRow.put(FP_LONGITUDE, place.lon);
+                        favPlaceRow.put(FP_NAME, result.results[0].name);
+                        favPlaceRow.put(FP_ICON, String.valueOf(result.results[0].icon));
+                        favPlaceRow.put(FP_RATING, result.results[0].rating);
+                        favPlaceRow.put(FP_PHOTO, String.valueOf(result.results[0].photos[0]));
+                        favPlaceRow.put(FP_ADDRESS, result.results[0].vicinity);
+                        db.insert(TABLE_FAV_PLACES, null, favPlaceRow);
+                        System.out.println("Inserted favourite place");
+                    }
+                } catch (final Exception e) {
+                    Log.e("Radius API query error", e.getMessage());
+                    e.printStackTrace();
+                }
         }
+    }
 
-        return latestAddress;
+    public ArrayList<FavPlaceResult> getFavouritePlaces() {
+        SQLiteDatabase db = getWritableDatabase();
+        ArrayList<FavPlaceResult> favPlacesList = new ArrayList<>();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_FAV_PLACES, null);
+        try {
+            while (cursor.moveToNext()) {
+                FavPlaceResult favPlace = new FavPlaceResult(
+                        cursor.getInt(cursor.getColumnIndex(FP_ID)),
+                        cursor.getString(cursor.getColumnIndex(FP_PLACE_ID)),
+                        cursor.getDouble(cursor.getColumnIndex(FP_LATITUDE)),
+                        cursor.getDouble(cursor.getColumnIndex(FP_LONGITUDE)),
+                        cursor.getString(cursor.getColumnIndex(FP_NAME)),
+                        cursor.getString(cursor.getColumnIndex(FP_ICON)),
+                        cursor.getDouble(cursor.getColumnIndex(FP_RATING)),
+                        cursor.getString(cursor.getColumnIndex(FP_PHOTO)),
+                        cursor.getString(cursor.getColumnIndex(FP_ADDRESS)));
+                favPlacesList.add(favPlace);
+            }
+        } finally {
+            cursor.close();
+        }
+        return favPlacesList;
     }
 }

@@ -90,11 +90,13 @@ public class ProcessJSON extends AppCompatActivity {
         PreferenceManager prefs = new PreferenceManager(this);
         Database db = new Database(this, null, null, 1);
 
-        LocationHistoryObject first = db.getFirstChronologicalEntry();
+        // LocationHistoryObject first = db.getFirstChronologicalEntry();
         LocationHistoryObject last = db.getLastChronologicalEntry();
 
         Calendar startDate = Calendar.getInstance();
-        startDate.setTimeInMillis(first.getTimestampMs());
+        // sets the default period to be the last week of the data
+        // 604800000 is 1 week in miliseconds
+        startDate.setTimeInMillis(last.getTimestampMs() - 604800000);
 
         Calendar endDate = Calendar.getInstance();
         endDate.setTimeInMillis(last.getTimestampMs());
