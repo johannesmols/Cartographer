@@ -76,15 +76,13 @@ public class FavPlacesActivity extends FragmentActivity implements OnMapReadyCal
             mMap.addMarker(new MarkerOptions().position(position)).setTitle(result.name);
         }
 
-
-        // Add a marker in Cph and move the camera
+        // Add a marker centered in Copenhagen and move the camera to that location
         LatLng cph = new LatLng(55.679, 12.572);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(cph, 12));
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
             @Override
             public void onInfoWindowClick(Marker marker) {
-
                 System.out.println(marker.getTitle());
             }
         });
