@@ -19,6 +19,7 @@ import java.util.Calendar;
 import itcom.cartographer.HeatmapActivity;
 import itcom.cartographer.MainActivity;
 import itcom.cartographer.R;
+import itcom.cartographer.RoutesActivity;
 import itcom.cartographer.Utils.PreferenceManager;
 
 public class MainFragment extends android.support.v4.app.Fragment {
@@ -40,7 +41,10 @@ public class MainFragment extends android.support.v4.app.Fragment {
         setHasOptionsMenu(true);
 
         CardView cardHeatmap = view.findViewById(R.id.card_heatmap);
+        CardView cardRoutes = view.findViewById(R.id.card_third);
+
         cardHeatmap.setOnClickListener(cardHeatmapClickListener);
+        cardRoutes.setOnClickListener(cardRoutesClickListener);
 
         return view;
     }
@@ -69,6 +73,13 @@ public class MainFragment extends android.support.v4.app.Fragment {
         @Override
         public void onClick(View v) {
             Intent changeActivity = new Intent(getActivity(), HeatmapActivity.class);
+            startActivity(changeActivity);
+        }
+    };
+    View.OnClickListener cardRoutesClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent changeActivity = new Intent(getActivity(), RoutesActivity.class);
             startActivity(changeActivity);
         }
     };

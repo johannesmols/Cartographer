@@ -14,8 +14,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 
-import static itcom.cartographer.HeatmapActivity.line;
-import static itcom.cartographer.HeatmapActivity.mMap;
+import static itcom.cartographer.RoutesActivity.line;
+import static itcom.cartographer.RoutesActivity.mMap;
 
 /**
  * This class is used as an API, it will send a JSONObject and retrieve an encoded String, which

@@ -51,6 +51,9 @@
         <activity
             android:name=".HeatmapActivity"
             android:label="@string/title_activity_heatmap" />
+        <activity
+            android:name=".RoutesActivity"
+            android:label="@string/title_activity_routes" />
     </application>
 
 </manifest>
