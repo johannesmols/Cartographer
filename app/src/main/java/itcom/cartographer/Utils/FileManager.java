@@ -8,7 +8,6 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,10 +74,6 @@ public class FileManager extends AppCompatActivity {
             npe.printStackTrace();
         }
     }//end method
-
-    protected void keyNoteGenerator(){
-        KeyStore keyStore;
-    }
 }
 
 

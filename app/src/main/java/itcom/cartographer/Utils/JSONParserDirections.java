@@ -17,6 +17,11 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 
+/**
+ * This class containts one method "mkRequest", it sends the start and destination points.
+ * This method returns a JSONObject which will be used to obtain the routes.
+ */
+
 public class JSONParserDirections {
 
     private String charset = "UTF-8";
@@ -30,9 +35,9 @@ public class JSONParserDirections {
 
     public JSONObject mkRequest(String url, String method, HashMap<String, String> params, boolean encode){
 
-        sbParams = new StringBuilder();
+        sbParams = new StringBuilder(); //stands for "String Builder Params".
         int x = 0;
-        for(String key: params.keySet()){
+        for(String key: params.keySet()){ //encondes the string to be sent.
             try{
                 if(x != 0){
                     sbParams.append("&");
@@ -47,7 +52,7 @@ public class JSONParserDirections {
             }
             x++;
         }
-        if(method.equals(("POST"))){
+        if(method.equals(("POST"))){ //This will try establish connection and send directly the params (NOTE: not used, this has been deprecated)
             try{
                 urlObject = new URL(url);
                 connection = (HttpURLConnection) urlObject.openConnection();
@@ -68,11 +73,11 @@ public class JSONParserDirections {
             }catch(IOException e){
                 e.printStackTrace();
             }
-        }else if(method.equals("GET")){
+        }else if(method.equals("GET")){ //this will try to put the params into the url to make the request and establish connection.
             if(sbParams.length() != 0){
                 url += "?" + sbParams.toString();
             }
-            Log.d("JSONParser", "full GET url: " + url);
+            Log.d("JSONParser", "full GET url: " + url); //shows the URL and the information in it that google send back.
 
             try{
                 urlObject = new URL(url);
@@ -87,7 +92,7 @@ public class JSONParserDirections {
                 e.printStackTrace();
             }
         }
-        try{
+        try{ //this will try to read the page to which the request have been made.
             InputStream inputStream = new BufferedInputStream(connection.getInputStream());
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
@@ -95,14 +100,14 @@ public class JSONParserDirections {
             while((line = reader.readLine()) != null){
                 result.append(line);
             }
-            Log.d("JSONParser", "result: " + result.toString());
+            Log.d("JSONParser", "result: " + result.toString()); //shows the information from the URL.
         }catch(IOException e){
             e.printStackTrace();
         }
-        connection.disconnect();
+        connection.disconnect(); //remember to disconnect every time a request has been made
 
         try{
-            jsonObject = new JSONObject(result.toString());
+            jsonObject = new JSONObject(result.toString()); // Puts the data in the JSONObject
         }catch(JSONException je){
             Log.e("JSONParser", "Error parsing data "+ je.toString());
         }
