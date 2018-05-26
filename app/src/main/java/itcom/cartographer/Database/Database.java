@@ -15,9 +15,12 @@ import com.google.maps.model.LatLng;
 import com.google.maps.model.PlacesSearchResponse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import itcom.cartographer.FavPlace;
 import itcom.cartographer.FavPlaceResult;
+import itcom.cartographer.Utils.PreferenceManager;
+import itcom.cartographer.Utils.CoordinateUtils;
 import itcom.cartographer.Utils.PreferenceManager;
 
 public class Database extends SQLiteOpenHelper {
@@ -220,29 +223,69 @@ public class Database extends SQLiteOpenHelper {
      * @return the list.
      */
     public ArrayList<com.google.android.gms.maps.model.LatLng> getLatLng(){
-        //get the database to read only
-        SQLiteDatabase db = getReadableDatabase();
-        //selects the latitude and the longitude from the table in the database and add them to the "query"
-        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + " FROM " + TABLE_LOCATION_HISTORY;
-        //the cursor is used to iterate through the query
-        Cursor cursor = db.rawQuery(query, null);
-        //Creates the list for the latitude and the longitude where to put the values from the "query"
-        ArrayList<com.google.android.gms.maps.model.LatLng> list = new ArrayList<>();
-        if((cursor != null && cursor.getCount() > 0)){
+
+        SQLiteDatabase db = getReadableDatabase();//get the database to read only
+        PreferenceManager preferenceManager = new PreferenceManager(_context);
+        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 +
+                " FROM " + TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP +
+                " BETWEEN " + preferenceManager.getDateRangeStart().getTimeInMillis() +
+                " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis(); //selects the latitude and the longitude from the table in the database and add them to the "query"
+
+        Cursor cursor = db.rawQuery(query, null); //the cursor is used to iterate through the query
+        ArrayList<com.google.android.gms.maps.model.LatLng> list = new ArrayList<>(); //Creates the list for the latitude and the longitude where to put the values from the "query"
+        if((cursor != null && cursor.getCount() > 0)){ //if the query is not empty and bigger than only one element, the cursor will go thought the query
             cursor.moveToFirst();
             try{
                 do{
                     int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
                     int lng = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
-                    //Since the values in the database are coming "raw", they must be divided by 1E7 (10^7)
-                    list.add(new com.google.android.gms.maps.model.LatLng((double)lat/1E7,(double) lng/1E7));
+                    list.add(new com.google.android.gms.maps.model.LatLng((double)lat/1E7,(double) lng/1E7)); //Since the values in the database are coming "raw", they must be divided by 1E7 (10^7)
                     cursor.moveToNext();
                 }while(!cursor.isAfterLast());
             }finally {
                 cursor.close();
             }
-        }
+        } //finish the loop
         return list;
+    }
+
+    public HashMap<com.google.android.gms.maps.model.LatLng,ArrayList<com.google.android.gms.maps.model.LatLng>> getLatLngTimed(){
+        SQLiteDatabase db = getReadableDatabase();//get the database to read only
+        PreferenceManager preferenceManager = new PreferenceManager(_context);
+
+        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + ", " + LH_TIMESTAMP +
+                " FROM " + TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP +
+                " BETWEEN " + preferenceManager.getDateRangeStart().getTimeInMillis() +
+                " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis();
+
+        Cursor cursor = db.rawQuery(query, null);
+        HashMap < com.google.android.gms.maps.model.LatLng,ArrayList < com.google.android.gms.maps.model.LatLng>> hashMap = new HashMap<>();
+        if((cursor != null && cursor.getCount() > 0)){
+            cursor.moveToFirst();
+            double timeTemp = (double) cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP));
+            try{
+                do{
+                    int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
+                    int lng = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
+                    com.google.android.gms.maps.model.LatLng StartPoint = new com.google.android.gms.maps.model.LatLng((double)lat/1E7,(double) lng/1E7);
+                    ArrayList<com.google.android.gms.maps.model.LatLng> arrayList = new ArrayList<>();
+
+                    while((cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP)) - timeTemp  <= 3.6E+6) && (!cursor.isAfterLast())){
+                        timeTemp = (double) cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP));
+                        int latEnd = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
+                        int lngEnd = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
+                        com.google.android.gms.maps.model.LatLng point = new com.google.android.gms.maps.model.LatLng((double)latEnd/1E7,(double) lngEnd/1E7);
+                        arrayList.add(point);
+                        hashMap.put(StartPoint, arrayList);
+                        cursor.moveToNext();
+                    }
+                    cursor.moveToNext();
+                }while(!cursor.isAfterLast());
+            }finally {
+                cursor.close();
+            }
+        } //finish the loop
+        return hashMap;
     }
 
     public void generateFavouritePlaces() {

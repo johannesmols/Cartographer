@@ -46,14 +46,19 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyC7w2p0ViSu2MRNbc_RlHRR7rScokSxUGE" />
+            android:value="@string/google_maps_key_RICARDO" />
 
         <activity
             android:name=".HeatmapActivity"
-            android:label="@string/title_activity_heatmap"></activity>
+            android:label="@string/title_activity_heatmap" />
+
+        <activity
+            android:name=".RoutesActivity"
+            android:label="@string/title_activity_routes" />
+
         <activity
             android:name=".FavPlacesActivity"
-            android:label="@string/title_activity_fav_places"></activity>
+            android:label="@string/title_activity_fav_places" />
     </application>
 
 </manifest>

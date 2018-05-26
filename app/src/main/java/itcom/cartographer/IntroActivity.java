@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -35,9 +36,7 @@ import itcom.cartographer.Utils.Unzipper;
 public class IntroActivity extends AppCompatActivity {
 
     private ViewPager viewPager;
-    private MyViewPagerAdapter myViewPagerAdapter;
     private LinearLayout dotsLayout;
-    private TextView[] dots;
     private int[] layouts;
     private Button btnBack, btnNext;
     private PreferenceManager prefManager;
@@ -83,7 +82,7 @@ public class IntroActivity extends AppCompatActivity {
         // making notification bar transparent
         changeStatusBarColor();
 
-        myViewPagerAdapter = new MyViewPagerAdapter(this);
+        MyViewPagerAdapter myViewPagerAdapter = new MyViewPagerAdapter(this);
         viewPager.setAdapter(myViewPagerAdapter);
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
         viewPager.setOffscreenPageLimit(layouts.length);
@@ -113,7 +112,7 @@ public class IntroActivity extends AppCompatActivity {
     }
 
     private void addBottomDots(int currentPage) {
-        dots = new TextView[layouts.length];
+        TextView[] dots = new TextView[layouts.length];
 
         int[] colorsActive = getResources().getIntArray(R.array.array_dot_active);
         int[] colorsInactive = getResources().getIntArray(R.array.array_dot_inactive);
@@ -240,7 +239,7 @@ public class IntroActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) { // 1 = file chooser for json file
-            Uri selectedFile = data.getData(); // The uri with the location of <></>he file
+            Uri selectedFile = data.getData(); // The uri with the location of the file
             if (selectedFile != null) {
                 String extension = MimeTypeMap.getFileExtensionFromUrl(selectedFile.toString());
                 String type = getContentResolver().getType(selectedFile);
@@ -303,12 +302,13 @@ public class IntroActivity extends AppCompatActivity {
         private Context context;
         private LayoutInflater layoutInflater;
 
-        public MyViewPagerAdapter(Context context) {
+        MyViewPagerAdapter(Context context) {
             this.context = context;
         }
 
+        @NonNull
         @Override
-        public Object instantiateItem(ViewGroup container, int position) {
+        public Object instantiateItem(@NonNull ViewGroup container, int position) {
             layoutInflater = LayoutInflater.from(context);
 
             View view = layoutInflater != null ? layoutInflater.inflate(layouts[position], container, false) : null;
@@ -323,13 +323,13 @@ public class IntroActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean isViewFromObject(View view, Object obj) {
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object obj) {
             return view == obj;
         }
 
 
         @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
+        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
             View view = (View) object;
             container.removeView(view);
         }
@@ -344,7 +344,7 @@ class Unzip extends AsyncTask<HashMap<String, Object>, Integer, Boolean> {
         void processFinish(Boolean output);
     }
 
-    private Unzip.AsyncResponse delegate = null;
+    private Unzip.AsyncResponse delegate;
 
     Unzip(Unzip.AsyncResponse delegate) {
         this.delegate = delegate;

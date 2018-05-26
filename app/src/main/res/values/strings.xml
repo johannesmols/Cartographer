@@ -69,4 +69,10 @@
 
     <!-- Intents -->
     <string name="intent_intro_to_json_uri">uri</string>
+
+    <!-- API KEY -->
+    <string name="google_maps_key_RICARDO" templateMergeStrategy="preserve" translatable="false"> AIzaSyDFsjB-OARk6Fc-zgfyZGJIY8ZxOaRx9ik </string>
+    <string name="title_activity_places">Map</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_routes">Map</string>
 </resources>
