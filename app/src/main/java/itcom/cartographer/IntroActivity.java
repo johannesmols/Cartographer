@@ -31,8 +31,10 @@ import itcom.cartographer.Database.ProcessJSON;
 import itcom.cartographer.Utils.PreferenceManager;
 import itcom.cartographer.Utils.Unzipper;
 
-// From this tutorial: https://www.androidhive.info/2016/05/android-build-intro-slider-app/
-
+/**
+ * An introduction that shows several slides with which the user can interact. The final slide prompts the user to select his location history JSON file.
+ * Originally from this tutorial, but modified: https://www.androidhive.info/2016/05/android-build-intro-slider-app/
+ */
 public class IntroActivity extends AppCompatActivity {
 
     private ViewPager viewPager;
@@ -111,6 +113,10 @@ public class IntroActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Add the dots on the bottom that indicate the current page
+     * @param currentPage the index of the current page
+     */
     private void addBottomDots(int currentPage) {
         TextView[] dots = new TextView[layouts.length];
 
@@ -131,12 +137,19 @@ public class IntroActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Launch the main activity of the application
+     */
     private void launchMainActivity() {
         prefManager.setFirstTimeLaunch(false);
         startActivity(new Intent(this, MainActivity.class));
         finish();
     }
 
+    /**
+     * Launch the activity that processes the JSON file
+     * @param file the Uri to the JSON file
+     */
     private void launchJSONProcessor(Uri file) {
         Intent launcher = new Intent(this, ProcessJSON.class);
         launcher.putExtra(getString(R.string.intent_intro_to_json_uri), file.toString());
@@ -144,7 +157,9 @@ public class IntroActivity extends AppCompatActivity {
         finish();
     }
 
-    /**  viewpager change listener */
+    /**
+     * Change button visibility depending on the current page
+     */
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageSelected(int position) {
@@ -179,6 +194,10 @@ public class IntroActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * Handle specific actions for the different buttons
+     * @param position the current page index
+     */
     private void actionsForSpecificSlides(int position) {
         View view = viewPager.getChildAt(position);
 
@@ -235,6 +254,12 @@ public class IntroActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Process the result from the file dialogs and continue appropriately
+     * @param requestCode the request code of the file viewer
+     * @param resultCode the result code
+     * @param data the data which contains the Uri to the selected file
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

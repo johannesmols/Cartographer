@@ -65,7 +65,7 @@
     <!-- Cards -->
     <string name="card_heatmap_title">Heatmap</string>
     <string name="card_fav_places_title">Favourite Places</string>
-    <string name="card_third_title">Third</string>
+    <string name="card_third_title">Routes</string>
 
     <!-- Intents -->
     <string name="intent_intro_to_json_uri">uri</string>

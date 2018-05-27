@@ -29,11 +29,17 @@ import itcom.cartographer.MainActivity;
 import itcom.cartographer.R;
 import itcom.cartographer.Utils.PreferenceManager;
 
+/**
+ * An activity that processes a location history file from Google and put in a database while showing a loading screen to the user
+ */
 public class ProcessJSON extends AppCompatActivity {
 
     private WaveView waveView;
     private TextView progressTextView;
 
+    /**
+     * Initialize UI components
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +63,10 @@ public class ProcessJSON extends AppCompatActivity {
         }
     }
 
+    /**
+     * Start an async task that reads the JSON file and redirects the app to the main dashboard once it is done
+     * @param file the Uri to the file
+     */
     private void parseJSON(Uri file) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("context", this);
@@ -85,7 +95,7 @@ public class ProcessJSON extends AppCompatActivity {
     }
 
     /**
-     * Set the initial time range that the application will show data for to the first and last entry in the database
+     * Set the initial time range that the application will show data for
      */
     private void setInitialStartAndEndDate() {
         PreferenceManager prefs = new PreferenceManager(this);
@@ -217,7 +227,7 @@ public class ProcessJSON extends AppCompatActivity {
                                                     Log.i("verticalAccuracy", String.valueOf(currentObject.getVerticalAccuracy()));
                                                     break;
                                                 case "activity":
-                                                    // sub array
+                                                    // Parse the activities into a separate table (Ludvig)
                                                     Log.e("activity", "Skipping for now...");
                                                     jsonReader.skipValue();
                                                     break;
@@ -232,7 +242,7 @@ public class ProcessJSON extends AppCompatActivity {
                                     jsonReader.endObject(); // end the current object
                                     hasAnotherObjectInArray = jsonReader.peek().equals(JsonToken.BEGIN_OBJECT); // determines if there is another object coming up in the array or if it is done
 
-                                    // Put object in the database
+                                    // Put objects in the database when limit is reached. This is to make the insertion more efficient
                                     if (parsedObjects.size() < 1024) {
                                         parsedObjects.add(currentObject);
                                     } else {
@@ -260,7 +270,7 @@ public class ProcessJSON extends AppCompatActivity {
                 }
                 jsonReader.close();
 
-                Log.i("Entry count", String.valueOf(database.getDatapointCount()));
+                Log.i("Entry count", String.valueOf(database.getDatapointsCount()));
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -269,6 +279,10 @@ public class ProcessJSON extends AppCompatActivity {
             return true;
         }
 
+        /**
+         * Update the loading bar in the activity to reflect the progress in percentage
+         * @param values the values of the update (percentage, bytes read, total byte size)
+         */
         @Override
         protected void onProgressUpdate(Long... values) {
             // get a reference to the activity if it is still there

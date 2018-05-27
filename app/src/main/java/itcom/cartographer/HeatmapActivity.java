@@ -38,10 +38,8 @@ import itcom.cartographer.Database.Database;
 
 /**
  * This class is used to instantiate the map and set a Heat Map on top of it.
- *
  * The Heat Map uses the Google Maps Android API (no limit) solely.
  */
-
 public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallback {
 
     public static GoogleMap mMap;
@@ -78,7 +76,6 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
      *
      * Please be sure you are using a device which can use google play services.
      */
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         LatLng copenhagen = new LatLng(55.650498, 12.555349);
@@ -90,6 +87,9 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         addHeatMap();
     }
 
+    /**
+     * Add the Heat Map
+     */
     private void addHeatMap(){
         // Create the gradient.
         int[] colors = {
@@ -152,8 +152,10 @@ public class HeatmapActivity extends FragmentActivity implements OnMapReadyCallb
         });//end listener
     }//end method
 
+    /**
+     * Add places to the map
+     */
     private void addPlaces(){
-
         try{
             Hashtable< LatLng, Integer> hashTable = new Hashtable<>();
             for(LatLng aLatLngList: latLngList) {

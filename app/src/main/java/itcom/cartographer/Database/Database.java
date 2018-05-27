@@ -17,12 +17,11 @@ import com.google.maps.model.PlacesSearchResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import itcom.cartographer.FavPlace;
-import itcom.cartographer.FavPlaceResult;
-import itcom.cartographer.Utils.PreferenceManager;
-import itcom.cartographer.Utils.CoordinateUtils;
 import itcom.cartographer.Utils.PreferenceManager;
 
+/**
+ * SQLite Database to store all location data that the app needs
+ */
 public class Database extends SQLiteOpenHelper {
 
     private Context _context;
@@ -62,6 +61,10 @@ public class Database extends SQLiteOpenHelper {
         this._context = context;
     }
 
+    /**
+     * Create empty tables on first launch
+     * @param sqLiteDatabase the SQLite database
+     */
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String query = "CREATE TABLE " + TABLE_LOCATION_HISTORY + "(" +
@@ -77,11 +80,13 @@ public class Database extends SQLiteOpenHelper {
                 ");" + "";
         sqLiteDatabase.execSQL(query);
 
+        // Not used yet
         query = "CREATE TABLE " + TABLE_ACTIVITIES + "(" +
                 AC_ID + " INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                 AC_TIMESTAMP + " BIGINT NOT NULL" +
                 ");";
         sqLiteDatabase.execSQL(query);
+
         String favPlacesTableQuery = "CREATE TABLE " + TABLE_FAV_PLACES + "(" +
                 FP_PLACE_ID + " TEXT, " +
                 FP_LATITUDE + " DOUBLE, " +
@@ -99,38 +104,66 @@ public class Database extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(favPlacesTableQuery);
     }
 
+    /**
+     * Deletes and recreates tables when an upgrade to the database is made
+     * @param sqLiteDatabase the SQLite database
+     * @param oldVersion old version number
+     * @param newVersion new version number
+     */
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCATION_HISTORY);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTIVITIES);
         onCreate(sqLiteDatabase);
     }
 
-    @Override // here I am trying to enable the foreign keys
+    /**
+     * Enable foreign keys
+     * @param db the SQLite database
+     */
+    @Override
     public void onOpen(SQLiteDatabase db) {
         db.execSQL("PRAGMA foreign_keys=ON");
     }
 
-    public int getDatapointCount() {
+    /**
+     * Get the total number of entries in the location history table
+     * @return the number of entries
+     */
+    public int getDatapointsCount() {
         SQLiteDatabase db = getReadableDatabase();
         return (int) DatabaseUtils.queryNumEntries(db, TABLE_LOCATION_HISTORY);
     }
 
+    /**
+     * Get the total number of entries in the activities table
+     * @return the number of entries
+     */
     public int getActivitesCount() {
         SQLiteDatabase db = getReadableDatabase();
         return (int) DatabaseUtils.queryNumEntries(db, TABLE_ACTIVITIES);
     }
 
+    /**
+     * Delete all entries in the location history table
+     */
     public void deleteAllLocationHistoryEntries() {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_LOCATION_HISTORY, null, null);
     }
 
+    /**
+     * Delete all entries in the activities table
+     */
     public void deleteAllActivityEntries() {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_ACTIVITIES, null, null);
     }
 
+    /**
+     * Add a list of entries to the location history table
+     * @param lhObjects the location history objects
+     */
     public void addLocationHistoryEntries(ArrayList<LocationHistoryObject> lhObjects) {
         SQLiteDatabase db = getWritableDatabase();
         String sql = "INSERT INTO " + TABLE_LOCATION_HISTORY + " VALUES (?,?,?,?,?,?,?,?,?);";
@@ -218,18 +251,19 @@ public class Database extends SQLiteOpenHelper {
     }
 
     /**
-     * Get the latitude and the longitude form the database and transforms it into LatLng format for google maps
+     * Get the latitudes and the longitudes from the database and transforms it into LatLng format for google maps
      * CAUTION!! this LatLng is NOT the same used for other purposes, this is coming from the google maps library.
      * @return the list.
      */
     public ArrayList<com.google.android.gms.maps.model.LatLng> getLatLng(){
 
-        SQLiteDatabase db = getReadableDatabase();//get the database to read only
+        SQLiteDatabase db = getReadableDatabase(); // get the database to read only
         PreferenceManager preferenceManager = new PreferenceManager(_context);
-        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 +
+        String query =
+                "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 +
                 " FROM " + TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP +
                 " BETWEEN " + preferenceManager.getDateRangeStart().getTimeInMillis() +
-                " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis(); //selects the latitude and the longitude from the table in the database and add them to the "query"
+                " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis(); //selects the latitudes and the longitudes from the table in the database and add them to the "query"
 
         Cursor cursor = db.rawQuery(query, null); //the cursor is used to iterate through the query
         ArrayList<com.google.android.gms.maps.model.LatLng> list = new ArrayList<>(); //Creates the list for the latitude and the longitude where to put the values from the "query"
@@ -239,7 +273,7 @@ public class Database extends SQLiteOpenHelper {
                 do{
                     int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
                     int lng = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
-                    list.add(new com.google.android.gms.maps.model.LatLng((double)lat/1E7,(double) lng/1E7)); //Since the values in the database are coming "raw", they must be divided by 1E7 (10^7)
+                    list.add(new com.google.android.gms.maps.model.LatLng((double) lat / 1E7,(double) lng / 1E7)); //Since the values in the database are coming "raw", they must be divided by 1E7 (10^7)
                     cursor.moveToNext();
                 }while(!cursor.isAfterLast());
             }finally {
@@ -249,62 +283,58 @@ public class Database extends SQLiteOpenHelper {
         return list;
     }
 
-    public HashMap<com.google.android.gms.maps.model.LatLng,ArrayList<com.google.android.gms.maps.model.LatLng>> getLatLngTimed(){
-        SQLiteDatabase db = getReadableDatabase();//get the database to read only
+    public HashMap<com.google.android.gms.maps.model.LatLng, ArrayList<com.google.android.gms.maps.model.LatLng>> getLatLngTimed(){
+        SQLiteDatabase db = getReadableDatabase(); //get the database to read only
         PreferenceManager preferenceManager = new PreferenceManager(_context);
 
-        String query = "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + ", " + LH_TIMESTAMP +
+        String query =
+                "SELECT " + LH_LATITUDE_E7 + ", " + LH_LONGITUDE_E7 + ", " + LH_TIMESTAMP +
                 " FROM " + TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP +
                 " BETWEEN " + preferenceManager.getDateRangeStart().getTimeInMillis() +
                 " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis();
 
         Cursor cursor = db.rawQuery(query, null);
-        HashMap < com.google.android.gms.maps.model.LatLng,ArrayList < com.google.android.gms.maps.model.LatLng>> hashMap = new HashMap<>();
-        if((cursor != null && cursor.getCount() > 0)){
+        HashMap<com.google.android.gms.maps.model.LatLng, ArrayList<com.google.android.gms.maps.model.LatLng>> hashMap = new HashMap<>();
+        if ((cursor != null && cursor.getCount() > 0)) {
             cursor.moveToFirst();
             double timeTemp = (double) cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP));
-            try{
-                do{
+            try {
+                do {
                     int lat = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
                     int lng = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
-                    com.google.android.gms.maps.model.LatLng StartPoint = new com.google.android.gms.maps.model.LatLng((double)lat/1E7,(double) lng/1E7);
+                    com.google.android.gms.maps.model.LatLng startPoint = new com.google.android.gms.maps.model.LatLng((double) lat / 1E7,(double) lng / 1E7);
                     ArrayList<com.google.android.gms.maps.model.LatLng> arrayList = new ArrayList<>();
 
                     while((cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP)) - timeTemp  <= 3.6E+6) && (!cursor.isAfterLast())){
                         timeTemp = (double) cursor.getInt(cursor.getColumnIndex(LH_TIMESTAMP));
                         int latEnd = cursor.getInt(cursor.getColumnIndex(LH_LATITUDE_E7));
                         int lngEnd = cursor.getInt(cursor.getColumnIndex(LH_LONGITUDE_E7));
-                        com.google.android.gms.maps.model.LatLng point = new com.google.android.gms.maps.model.LatLng((double)latEnd/1E7,(double) lngEnd/1E7);
+                        com.google.android.gms.maps.model.LatLng point = new com.google.android.gms.maps.model.LatLng((double) latEnd / 1E7,(double) lngEnd / 1E7);
                         arrayList.add(point);
-                        hashMap.put(StartPoint, arrayList);
+                        hashMap.put(startPoint, arrayList);
                         cursor.moveToNext();
                     }
                     cursor.moveToNext();
-                }while(!cursor.isAfterLast());
-            }finally {
+                } while(!cursor.isAfterLast());
+            } finally {
                 cursor.close();
             }
         } //finish the loop
         return hashMap;
     }
 
+    /**
+     * Generate a list with all the favourite places and insert them in the designated table
+     */
     public void generateFavouritePlaces() {
         SQLiteDatabase db = getWritableDatabase();
         PreferenceManager preferenceManager = new PreferenceManager(_context);
-//        String dateQuery = "SELECT " + LH_TIMESTAMP + " FROM " + TABLE_LOCATION_HISTORY + " LIMIT 2";
-//        Cursor dateCursor = db.rawQuery(dateQuery, null);
-//        dateCursor.moveToFirst();
-//        long latestDate = Long.parseLong(dateCursor.getString(dateCursor.getColumnIndex(LH_TIMESTAMP)));
-//        dateCursor.close();
-//        long queryEndDate = latestDate - 86400 * 14 * 1000;
-//        String query = "SELECT * FROM " +
-//                TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN " + queryEndDate +
-//                " AND " + latestDate + " ORDER BY " + LH_LATITUDE_E7;
 
         // select all entries that fit in the date range and save them in an array list
-        String query = "SELECT * FROM " +
-                TABLE_LOCATION_HISTORY + " WHERE " + LH_TIMESTAMP + " BETWEEN " + preferenceManager.getDateRangeStart().getTimeInMillis() +
-                " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis();
+        String query = "SELECT * FROM " + TABLE_LOCATION_HISTORY
+                + " WHERE " + LH_TIMESTAMP
+                + " BETWEEN " + preferenceManager.getDateRangeStart().getTimeInMillis()
+                + " AND " + preferenceManager.getDateRangeEnd().getTimeInMillis();
 
         Cursor cursor = db.rawQuery(query, null);
         ArrayList<FavPlace> coordinates = new ArrayList<>();
@@ -361,11 +391,15 @@ public class Database extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Get the list of all favourite places from the table
+     * @return all favourite places
+     */
     public ArrayList<FavPlaceResult> getFavouritePlaces() {
         SQLiteDatabase db = getWritableDatabase();
         ArrayList<FavPlaceResult> favPlacesList = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_FAV_PLACES, null);
-        try {
+
+        try (Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_FAV_PLACES, null)) {
             while (cursor.moveToNext()) {
                 FavPlaceResult favPlace = new FavPlaceResult(
                         cursor.getInt(cursor.getColumnIndex(FP_ID)),
@@ -379,8 +413,6 @@ public class Database extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndex(FP_ADDRESS)));
                 favPlacesList.add(favPlace);
             }
-        } finally {
-            cursor.close();
         }
         return favPlacesList;
     }

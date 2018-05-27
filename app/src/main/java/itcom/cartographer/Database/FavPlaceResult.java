@@ -1,9 +1,8 @@
-package itcom.cartographer;
+package itcom.cartographer.Database;
 
 /**
- * Created by Boris on 4/24/2018.
+ * An object that represents a favourite place result (looked up on Google Maps)
  */
-
 public class FavPlaceResult {
     public int id;
     public String place_id;
@@ -15,9 +14,7 @@ public class FavPlaceResult {
     public String photo;
     public String address;
 
-    public FavPlaceResult(int id, String place_id, double lat, double lon, String name, String
-            icon, double rating,
-                          String photo, String address) {
+    public FavPlaceResult(int id, String place_id, double lat, double lon, String name, String icon, double rating, String photo, String address) {
         this.id = id;
         this.place_id = place_id;
         this.lat = lat;

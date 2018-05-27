@@ -23,6 +23,9 @@ import java.util.List;
 import itcom.cartographer.Database.Database;
 import itcom.cartographer.Utils.DirectionsAsync;
 
+/**
+ * An activity that draws the most frequents routes on a map
+ */
 public class RoutesActivity extends FragmentActivity implements OnMapReadyCallback {
 
     public static GoogleMap mMap;

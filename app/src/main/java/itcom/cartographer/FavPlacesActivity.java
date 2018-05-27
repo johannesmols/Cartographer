@@ -2,7 +2,6 @@ package itcom.cartographer;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -11,8 +10,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.model.GeocodingResult;
-import com.google.maps.model.PlacesSearchResponse;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
@@ -21,7 +18,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import itcom.cartographer.Database.Database;
+import itcom.cartographer.Database.FavPlaceResult;
 
+/**
+ * The activity that shows a map with all favourite places as markers
+ */
 public class FavPlacesActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -61,8 +62,7 @@ public class FavPlacesActivity extends FragmentActivity implements OnMapReadyCal
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
+     * This is where we can add markers or lines, add listeners or move the camera.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.

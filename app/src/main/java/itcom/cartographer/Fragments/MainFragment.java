@@ -23,6 +23,9 @@ import itcom.cartographer.R;
 import itcom.cartographer.RoutesActivity;
 import itcom.cartographer.Utils.PreferenceManager;
 
+/**
+ * The main fragment of the app that shows the dashboard with buttons to the specific functionalities
+ */
 public class MainFragment extends android.support.v4.app.Fragment {
 
     private MainActivity mainActivity;
@@ -113,6 +116,9 @@ public class MainFragment extends android.support.v4.app.Fragment {
         datePickerDialog.show();
     }
 
+    /**
+     * Save the set start date to the preferences
+     */
     DatePickerDialog.OnDateSetListener onSetStartDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -124,6 +130,9 @@ public class MainFragment extends android.support.v4.app.Fragment {
         }
     };
 
+    /**
+     * Save the set end date to the preferences
+     */
     DatePickerDialog.OnDateSetListener onSetEndDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {

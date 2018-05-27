@@ -30,6 +30,10 @@ import itcom.cartographer.Fragments.MainFragment;
 import itcom.cartographer.Fragments.SettingsFragment;
 import itcom.cartographer.Utils.PreferenceManager;
 
+/**
+ * The activity of the main screen of the app.
+ * Handles switching fragments with the navigation drawer, restoring bundle states, and more.
+ */
 public class MainActivity extends AppCompatActivity {
 
     // The key to be used in bundles to store the current fragment
@@ -224,6 +228,10 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * Switch to a fragment smoothly (using Runnable)
+     * @param menuItem the chosen menu item
+     */
     public void selectDrawerItem(final MenuItem menuItem) {
         pendingRunnable = new Runnable() {
             @Override

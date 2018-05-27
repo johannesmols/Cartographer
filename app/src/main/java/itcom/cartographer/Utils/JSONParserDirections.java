@@ -18,10 +18,9 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 
 /**
- * This class containts one method "mkRequest", it sends the start and destination points.
+ * This class contains one method "mkRequest", it sends the start and destination points.
  * This method returns a JSONObject which will be used to obtain the routes.
  */
-
 public class JSONParserDirections {
 
     private String charset = "UTF-8";

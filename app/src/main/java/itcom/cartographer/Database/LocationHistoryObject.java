@@ -1,5 +1,8 @@
 package itcom.cartographer.Database;
 
+/**
+ * An object that represents an entry in the location history file from Google. The same format is used in the database.
+ */
 public class LocationHistoryObject {
 
     private long timestampMs;

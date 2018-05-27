@@ -14,6 +14,9 @@ import com.vansuita.materialabout.views.AboutView;
 
 import itcom.cartographer.R;
 
+/**
+ * A fragment to show some more information about the app, using a library called "MaterialAbout" (https://github.com/jrvansuita/MaterialAbout)
+ */
 public class AboutFragment extends Fragment {
 
     private Context mContext;

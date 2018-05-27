@@ -1,9 +1,8 @@
-package itcom.cartographer;
+package itcom.cartographer.Database;
 
 /**
- * Created by Boris on 4/24/2018.
+ * An object that represents a favourite place
  */
-
 public class FavPlace {
     public int id;
     public double lat;

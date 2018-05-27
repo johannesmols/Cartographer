@@ -17,6 +17,9 @@ import net.lingala.zip4j.exception.ZipException;
 import es.dmoral.toasty.Toasty;
 import itcom.cartographer.R;
 
+/**
+ * Unzips a given file using the zip4j library
+ */
 public class Unzipper {
 
     private Context context;
@@ -25,8 +28,12 @@ public class Unzipper {
         this.context = context;
     }
 
+    /**
+     * Unzip an archive
+     * @param file the .zip archive
+     * @return if the operation was successful
+     */
     public boolean unzip(Uri file) {
-
         try {
             String filePath = getPath(context, file);
 
@@ -70,6 +77,8 @@ public class Unzipper {
      * Get a file path from a Uri. This will get the the path for Storage Access
      * Framework Documents, as well as the _data field for the MediaStore and
      * other file-based ContentProviders.
+     *
+     * This is a method from an StackOverflow post: https://stackoverflow.com/questions/20067508/get-real-path-from-uri-android-kitkat-new-storage-access-framework?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
      *
      * @param context The context.
      * @param uri The Uri to query.
@@ -141,6 +150,8 @@ public class Unzipper {
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
      *
+     * This is a method from an StackOverflow post: https://stackoverflow.com/questions/20067508/get-real-path-from-uri-android-kitkat-new-storage-access-framework?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+     *
      * @param context The context.
      * @param uri The Uri to query.
      * @param selection (Optional) Filter used in the query.
@@ -172,6 +183,7 @@ public class Unzipper {
 
 
     /**
+     * This is a method from an StackOverflow post: https://stackoverflow.com/questions/20067508/get-real-path-from-uri-android-kitkat-new-storage-access-framework?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
      * @param uri The Uri to check.
      * @return Whether the Uri authority is ExternalStorageProvider.
      */
@@ -180,6 +192,7 @@ public class Unzipper {
     }
 
     /**
+     * This is a method from an StackOverflow post: https://stackoverflow.com/questions/20067508/get-real-path-from-uri-android-kitkat-new-storage-access-framework?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
      * @param uri The Uri to check.
      * @return Whether the Uri authority is DownloadsProvider.
      */
@@ -188,6 +201,7 @@ public class Unzipper {
     }
 
     /**
+     * This is a method from an StackOverflow post: https://stackoverflow.com/questions/20067508/get-real-path-from-uri-android-kitkat-new-storage-access-framework?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
      * @param uri The Uri to check.
      * @return Whether the Uri authority is MediaProvider.
      */

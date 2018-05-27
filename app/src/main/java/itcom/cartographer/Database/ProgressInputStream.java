@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * https://stackoverflow.com/questions/27890287/how-to-publish-progress-for-large-json-file-parsing-with-gson
+ * A special InputStream that estimates the progress of how much of the file has been read
+ * Source: https://stackoverflow.com/questions/27890287/how-to-publish-progress-for-large-json-file-parsing-with-gson
  */
 public class ProgressInputStream extends FilterInputStream {
+
     private final int size;
     private long bytesRead;
     private int percent;
@@ -37,6 +39,9 @@ public class ProgressInputStream extends FilterInputStream {
         listeners.remove(listener);
     }
 
+    /**
+     * Read the file and update the progress with each byte
+     */
     @Override
     public int read() throws IOException {
         int b = super.read();
@@ -74,6 +79,10 @@ public class ProgressInputStream extends FilterInputStream {
         return false;
     }
 
+    /**
+     * Estimate the progress
+     * @return the estimated progress in percentage
+     */
     private <T extends Number> T updateProgress(T numBytesRead) {
         if (numBytesRead.longValue() > 0) {
             bytesRead += numBytesRead.longValue();

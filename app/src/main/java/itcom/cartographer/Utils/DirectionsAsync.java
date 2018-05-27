@@ -21,7 +21,6 @@ import static itcom.cartographer.RoutesActivity.mMap;
  * This class is used as an API, it will send a JSONObject and retrieve an encoded String, which
  * will be decoded to get the points to form the polyline and draw the route.
  */
-
 public class DirectionsAsync extends AsyncTask<LatLng, Void, List<LatLng>> {
 
     JSONParserDirections jsonParserDirections;

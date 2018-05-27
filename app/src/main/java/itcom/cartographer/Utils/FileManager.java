@@ -15,6 +15,7 @@ import es.dmoral.toasty.Toasty;
 
 @SuppressLint("Registered")
 public class FileManager extends AppCompatActivity {
+
     /**
      * 25/4/2018 (Ricardo Comment)
      * This method was created originally to delete the JSON file downloaded in the internal storage
@@ -22,7 +23,6 @@ public class FileManager extends AppCompatActivity {
      * database directory or a external storage directory.
      * It contains a list in case we want to delete more than one file at the same time.
      */
-
     public void deleteThisFiles(Uri uri, List<Uri> uriList){ //call this method with a single URI or a list of its kind(set it to null if none)
         /*
         For security reasons, Android does not allow an app to delete files created by another app, it will result in a permission denied
